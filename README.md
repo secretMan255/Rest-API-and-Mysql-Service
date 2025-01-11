@@ -1,1 +1,3 @@
-# Service
+# Env variable
+1. SECRET_KEY
+2. DATABASE_URL
