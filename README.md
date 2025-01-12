@@ -14,4 +14,4 @@ GRANT ALL PRIVILEGES ON _._ TO 'developer'@'%';
 FLUSH PRIVILEGES;
 
 BUILD IMAGE
-docker build -t <image-name>
+docker build -t <image-name> .
