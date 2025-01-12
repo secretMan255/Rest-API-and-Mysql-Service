@@ -1,4 +1,4 @@
-import { OnGetItemList, OnGetImage, OnGetProductList } from './base.api/item.rest.api'
+import { OnGetItemList, OnGetImage, OnGetProductList, OnTest } from './base.api/item.rest.api'
 import { ApiBase, Auth } from './base.api/ApiBase'
 import { MysqlService } from './mySql/mySqlServer'
 
@@ -8,6 +8,12 @@ export class service {
           ApiBase.init()
           await MysqlService.init()
 
+          // test
+          ApiBase.get('/test', OnTest, Auth.Bearer)
+
+          // post
+
+          // get
           ApiBase.get('/products', OnGetProductList, Auth.Bearer)
           ApiBase.get('/items', OnGetItemList, Auth.Bearer)
           ApiBase.get('/image', OnGetImage, Auth.Bearer)

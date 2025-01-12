@@ -4,6 +4,10 @@ import { JoinValidator, getImageRequest, getItemListRequest, getProductListReque
 import { getImage } from '../commond/commond'
 import { ResultType } from './ApiBase'
 
+export async function OnTest(req: Request, res: Response): Promise<any> {
+     return 'GOOD'
+}
+
 export async function OnGetProductList(req: Request, res: Response): Promise<any> {
      return await JoinValidator(req.query, async (data) => MysqlService.getPorductList(data), getProductListRequest)
 }
