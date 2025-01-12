@@ -27,6 +27,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "dist",
+    "rootDir" : "./src",
     "baseUrl": "./src",
     "resolveJsonModule": true,
     "declaration": true,
@@ -34,5 +35,6 @@
     "emitDecoratorMetadata": true,
     "isolatedModules": false
   },
-  "exclude": ["*/.test.ts", "*/.spec.ts", "*/.helper.ts", "jest.init.ts", "jest.helper.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["*/.test.ts", "*/.spec.ts", "*/.helper.ts", "jest.init.ts", "jest.helper.ts", "node_modules", "dist"]
 }

@@ -29,7 +29,7 @@ export class ApiBase {
 
           dotenv.config()
           this.secretKey = process.env.SECRET_KEY || 'defaultSecretKey'
-          const resolveHost = host || 'localhost'
+          const resolveHost = host || '0.0.0.0'
           const resolvePort = port || 8000
 
           this.server = this.app.listen(resolvePort, resolveHost, () => {

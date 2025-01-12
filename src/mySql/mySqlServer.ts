@@ -31,7 +31,14 @@ export class MysqlService {
 
           try {
                // Create a connection instance
-               this.Instance = await mysql.createConnection(this.MysqlURL)
+               // this.Instance = await mysql.createConnection(this.MysqlURL)
+               this.Instance = await mysql.createConnection({
+                    host: process.env.host,
+                    user: process.env.username,
+                    password: process.env.password,
+                    database: process.env.databse,
+                    port: Number(process.env.port),
+               })
                console.log('Connected to MySQL database!')
           } catch (err) {
                console.error('Error connecting to MySQL:', err)

@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "npm run clean && npm run build && ts-node src/app.service.ts",
-    "build": "tsc",
-    "start": "node dist/app.service.js",
+    "dev": "npm run build && ts-node src/app.service.ts",
+    "build": "npm run clean && tsc",
+    "start": "npm run build && node dist/app.service.js",
     "clean": "rm -rf dist"
   },
   "keywords": [],
