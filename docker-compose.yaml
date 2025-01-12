@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  api-mysql-server: 
+    image: 
+    container_name: API SERVER
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=
+      - DATABASE_URL=
+      - host=
+      - username=
+      - password=
+      - databse=
+      - port=
+    restart: always
