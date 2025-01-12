@@ -12,3 +12,6 @@ SELECT User, Host FROM mysql.user;
 CREATE USER 'developer'@'%' IDENTIFIED BY 'StrongPassword!@#123';
 GRANT ALL PRIVILEGES ON _._ TO 'developer'@'%';
 FLUSH PRIVILEGES;
+
+BUILD IMAGE
+docker build -t <image-name>
