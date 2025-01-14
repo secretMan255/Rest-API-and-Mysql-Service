@@ -33,3 +33,12 @@ CHANGE COLUMN `price` `price` DECIMAL(7,2) NOT NULL AFTER `describe`;
 
 ALTER TABLE `pnk`.`items` 
 CHANGE COLUMN `describe` `describe` VARCHAR(350) NULL DEFAULT NULL ;
+
+ALTER TABLE `pnk`.`products` 
+ADD COLUMN `icon` VARCHAR(45) NULL DEFAULT NULL AFTER `p_id`;
+
+CREATE TABLE `pnk`.`subscribe` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(100) NOT NULL,
+  `createAt` DATETIME NULL DEFAULT NULL,
+  PRIMARY KEY (`id`));
