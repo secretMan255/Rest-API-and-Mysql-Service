@@ -1,31 +1,20 @@
-# OS image or node image
+# Base image: Node.js with Alpine for a lightweight image
 FROM node:22.11.0-alpine
 
-# install system dependencies and NVM
-# RUN apt-get update && apt-get install -y curl build-essential && \
-#     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-
-# install nodejs
-# RUN bash -c "source ~/.bashrc && nvm install 22.11.0 && nvm use 22.11.0"
-
-# working directory
+# Set working directory inside the container
 WORKDIR /usr/src/app
 
-# copy package into container
+# Copy package.json and package-lock.json into the container
 COPY package*.json ./
 
-# init project node_module
-# RUN bash -c "source ~/.bashrc && npm install"
-RUN npm install
+# Install project dependencies
+RUN npm install --production
 
-# copy code into container
+# Copy the rest of the application code into the container
 COPY . .
 
-# copy env file into container
-# COPY .env .env
-
-# defined api port
+# Expose the application port
 EXPOSE 8000
 
-# run project
+# Define the default command to run your application
 CMD ["npm", "start"]

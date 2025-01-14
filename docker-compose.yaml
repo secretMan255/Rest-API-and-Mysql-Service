@@ -3,7 +3,7 @@ version: '3.8'
 services:
   api-mysql-server: 
     image: 
-    container_name: API SERVER
+    container_name: api_server
     ports:
       - "8000:8000"
     environment:
