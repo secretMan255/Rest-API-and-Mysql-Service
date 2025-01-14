@@ -1,22 +1,27 @@
-import { OnGetItemList, OnGetImage, OnGetProductList, OnTest } from './base.api/item.rest.api'
-import { ApiBase, Auth } from './base.api/ApiBase'
-import { MysqlService } from './mySql/mySqlServer'
+import { ApiBase, Auth, OnGetItemList, OnGetImage, OnGetProductList, OnTest, OnUploadImage, OnGetFileName, OnDeleteFile, OnSubscribe } from './base.api/index'
+import { MySqlService } from './mySql/index'
+import { GoogleCloudStorage } from './GoogleCloud/index'
 
 export class service {
      public static async init() {
           // Initialize the application
           ApiBase.init()
-          await MysqlService.init()
+          GoogleCloudStorage.init()
+          await MySqlService.init()
 
           // test
-          ApiBase.get('/test', OnTest, Auth.Bearer)
+          ApiBase.get('/test', OnTest, Auth.None)
 
           // post
+          ApiBase.post('/upload/image', OnUploadImage, Auth.Bearer)
+          ApiBase.post('/file/delete', OnDeleteFile, Auth.Bearer)
 
           // get
           ApiBase.get('/products', OnGetProductList, Auth.Bearer)
           ApiBase.get('/items', OnGetItemList, Auth.Bearer)
           ApiBase.get('/image', OnGetImage, Auth.Bearer)
+          ApiBase.get('/file/name', OnGetFileName, Auth.Bearer)
+          ApiBase.get('/subscribe', OnSubscribe, Auth.Bearer)
 
           this.start()
      }
@@ -27,6 +32,6 @@ export class service {
      public static async TerminateService() {
           console.log('Service terminate ...')
           ApiBase.terminate()
-          await MysqlService.terminate()
+          await MySqlService.terminate()
      }
 }
