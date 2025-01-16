@@ -42,3 +42,22 @@ CREATE TABLE `pnk`.`subscribe` (
   `email` VARCHAR(100) NOT NULL,
   `createAt` DATETIME NULL DEFAULT NULL,
   PRIMARY KEY (`id`));
+
+CREATE TABLE `pnk`.`userCre` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `google_id` VARCHAR(255) NOT NULL,
+  `user` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(45) NOT NULL,
+  `createAt` DATETIME NOT NULL,
+  `lastLogin` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_google_id` (`google_id` ASC) VISIBLE);
+
+ALTER TABLE `pnk`.`userCre` 
+ADD COLUMN `password` VARCHAR(255) NULL AFTER `user`,
+ADD COLUMN `address` VARCHAR(255) NULL AFTER `email`;
+
+ALTER TABLE `pnk`.`userCre` 
+ADD COLUMN `phone` VARCHAR(15) NULL AFTER `password`,
+ADD COLUMN `opt` VARCHAR(6) NULL AFTER `address`,
+ADD COLUMN `opt_expiry` DATETIME NULL AFTER `opt`;
