@@ -14,6 +14,11 @@ export enum ResultType {
      IMAGE = 'IMAGE',
 }
 
+export enum Res {
+     SUCCESS = 0,
+     FAIL = -1,
+}
+
 export class ApiBase {
      private static app: Express
      private static secretKey: string
@@ -88,8 +93,8 @@ export class ApiBase {
                     console.log(`Result: ${inspect(result, { depth: null, colors: true })}`)
                     res.status(200).json({ ret: 0, data: result })
                } catch (err) {
-                    console.error(`API get error: ${err}`)
-                    res.status(500).json({ ret: -1, msg: err instanceof Error ? err.message : 'Internal Server Error' })
+                    console.error(`API post error: ${err}`)
+                    res.status(400).json({ ret: -1, msg: err instanceof Error ? err.message : 'Internal Server Error' })
                }
           })
      }
@@ -99,13 +104,17 @@ export class ApiBase {
                case Auth.Bearer:
                     return (req, res, next) => this.AutheticationToken(req, res, next)
                case Auth.None:
-                    return null
+                    return (req, res, next) => this.NoAuthetication(req, res, next)
                default:
                     throw new Error(`Unsupported authentication type: ${authType}`)
           }
      }
 
-     public static AutheticationToken(req: Request, res: Response, next: NextFunction): void {
+     private static NoAuthetication(req: Request, res: Response, next: NextFunction): void {
+          next()
+     }
+
+     private static AutheticationToken(req: Request, res: Response, next: NextFunction): void {
           const authHeader: string | undefined = req.headers.authorization
 
           if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -117,12 +126,10 @@ export class ApiBase {
                     } else {
                          const payload = decoded as JwtPayload
 
-                         if (!payload.userId) {
-                              res.status(401).json({ ret: -1, msg: 'userId is required' })
-                         } else if (payload.userId === String) {
-                              res.status(401).json({ ret: -1, msg: 'userId must be a number' })
+                         if (!payload.user) {
+                              res.status(401).json({ ret: -1, msg: 'user is required' })
                          } else {
-                              req.body.user = payload
+                              req['authUser'] = payload.user
                               next()
                          }
                     }

@@ -1,4 +1,4 @@
-import { ApiBase, Auth, OnGetItemList, OnGetImage, OnGetProductList, OnTest, OnUploadImage, OnGetFileName, OnDeleteFile, OnSubscribe, OnUserLogin, OnSendOTP } from './base.api/index'
+import { ApiBase, Auth, OnGetItemList, OnGetImage, OnGetProductList, OnTest, OnUploadImage, OnGetFileName, OnDeleteFile, OnSubscribe, OnUserLogin, OnSendOTP, OnUpdatePassword } from './base.api/index'
 import { MySqlService } from './mySql/index'
 import { GoogleCloudStorage } from './GoogleCloud/index'
 import { Mail } from './mail/index'
@@ -18,6 +18,8 @@ export class service {
           ApiBase.post('/upload/image', OnUploadImage, Auth.Bearer)
           ApiBase.post('/file/delete', OnDeleteFile, Auth.Bearer)
           ApiBase.post('/login/user', OnUserLogin, Auth.Bearer)
+          ApiBase.post('/send/opt', OnSendOTP, Auth.Bearer)
+          ApiBase.post('/reset/password', OnUpdatePassword, Auth.Bearer)
 
           // get
           ApiBase.get('/products', OnGetProductList, Auth.Bearer)
@@ -25,7 +27,6 @@ export class service {
           ApiBase.get('/image', OnGetImage, Auth.Bearer)
           ApiBase.get('/file/name', OnGetFileName, Auth.Bearer)
           ApiBase.get('/subscribe', OnSubscribe, Auth.Bearer)
-          ApiBase.get('/send/opt', OnSendOTP, Auth.Bearer)
 
           this.start()
      }

@@ -61,3 +61,7 @@ ALTER TABLE `pnk`.`userCre`
 ADD COLUMN `phone` VARCHAR(15) NULL AFTER `password`,
 ADD COLUMN `opt` VARCHAR(6) NULL AFTER `address`,
 ADD COLUMN `opt_expiry` DATETIME NULL AFTER `opt`;
+
+ALTER TABLE `pnk`.`userCre` 
+CHANGE COLUMN `opt` `otp` VARCHAR(6) NULL DEFAULT NULL ,
+CHANGE COLUMN `opt_expiry` `otp_expiry` DATETIME NULL DEFAULT NULL ;

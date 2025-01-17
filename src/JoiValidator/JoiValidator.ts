@@ -1,4 +1,4 @@
-import Joi from 'joi'
+import Joi, { string } from 'joi'
 
 export async function JoinValidator(data: any, method: (data: any) => Promise<any>, joiValidator: any): Promise<any> {
      const { error } = joiValidator.validate(data)
@@ -38,4 +38,24 @@ export const DelteFilesRequest = Joi.object({
 
 export const SubscribeResquest = Joi.object({
      email: Joi.string().required(),
+})
+
+export const UserLoginRequest = Joi.object({
+     email: Joi.string().required(),
+     name: Joi.string(),
+     sub: Joi.string(),
+     password: Joi.string(),
+     recaptchaToken: Joi.string().required(),
+})
+
+export const SendOTPRequest = Joi.object({
+     email: Joi.string().required(),
+     recaptchaToken: Joi.string().required(),
+})
+
+export const UpdatePasswordRequest = Joi.object({
+     email: Joi.string().required(),
+     password: Joi.string().required(),
+     otp: Joi.number().required(),
+     recaptchaToken: Joi.string().required(),
 })
