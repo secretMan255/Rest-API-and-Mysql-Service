@@ -80,7 +80,7 @@ Main: BEGIN
 	-- Google login
 	IF (p_sub IS NOT NULL AND p_sub != '') THEN
 		IF EXISTS (SELECT * FROM pnk.userCre WHERE email = p_email) THEN 
-			SELECT id, google_id, user, password, email, address FROM pnk.userCre WHERE email = p_email;
+			SELECT id, google_id, user, password, email, address, postCode, country FROM pnk.userCre WHERE email = p_email;
 		ELSE 
 			INSERT INTO pnk.userCre(google_id, user, email, createAt, lastLogin)
 			VALUES (p_sub, p_name, p_email, utc_timestamp(), utc_timestamp());
@@ -91,7 +91,7 @@ Main: BEGIN
 			SELECT 'User no exists' AS noTExists;
             LEAVE Main;
 		ELSE 
-			SELECT id, google_id, user, password, email, address FROM pnk.userCre WHERE email = p_email;
+			SELECT id, google_id, user, password, email, address, postCode, country FROM pnk.userCre WHERE email = p_email;
         END IF;
     END IF;
 END Main $$

@@ -65,3 +65,7 @@ ADD COLUMN `opt_expiry` DATETIME NULL AFTER `opt`;
 ALTER TABLE `pnk`.`userCre` 
 CHANGE COLUMN `opt` `otp` VARCHAR(6) NULL DEFAULT NULL ,
 CHANGE COLUMN `opt_expiry` `otp_expiry` DATETIME NULL DEFAULT NULL ;
+
+ALTER TABLE `pnk`.`userCre` 
+ADD COLUMN `postCode` INT NULL AFTER `address`,
+ADD COLUMN `country` VARCHAR(45) NULL AFTER `postCode`;
