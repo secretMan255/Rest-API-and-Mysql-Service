@@ -1,6 +1,18 @@
 import { Request, Response } from 'express'
 import { MySqlService } from '../mySql/index'
-import { JoinValidator, GetImageRequest, GetItemListRequest, GetProductListRequest, SubscribeResquest, UserLoginRequest, SendOTPRequest, UpdatePasswordRequest } from '../JoiValidator/JoiValidator'
+import {
+     JoinValidator,
+     GetImageRequest,
+     GetItemListRequest,
+     GetProductListRequest,
+     SubscribeResquest,
+     UserLoginRequest,
+     ResetPasswordOTPRequest,
+     UpdatePasswordRequest,
+     VerifyEmailRequest,
+     CreateAccountRequest,
+     StateRequest,
+} from '../JoiValidator/JoiValidator'
 import { getFile } from '../commond/commond'
 import { ResultType } from './index'
 
@@ -28,10 +40,22 @@ export async function OnUserLogin(req: Request, res: Response): Promise<any> {
      return await JoinValidator(req.body, async (data) => MySqlService.userLogin(data), UserLoginRequest)
 }
 
-export async function OnSendOTP(req: Request, res: Response): Promise<any> {
-     return await JoinValidator(req.body, async (data) => MySqlService.sendOPT(data), SendOTPRequest)
+export async function OnResetPassowrdOTP(req: Request, res: Response): Promise<any> {
+     return await JoinValidator(req.body, async (data) => MySqlService.resetPasswordOtp(data), ResetPasswordOTPRequest)
 }
 
 export async function OnUpdatePassword(req: Request, res: Response): Promise<any> {
      return await JoinValidator(req.body, async (data) => MySqlService.updatePassword(data), UpdatePasswordRequest)
+}
+
+export async function OnEmailOTP(req: Request, res: Response): Promise<any> {
+     return await JoinValidator(req.body, async (data) => MySqlService.emailOTP(data), VerifyEmailRequest)
+}
+
+export async function OnCreateAccount(req: Request, res: Response): Promise<any> {
+     return await JoinValidator(req.body, async (data) => MySqlService.createAccount(data), CreateAccountRequest)
+}
+
+export async function OnGetState(req: Request, res: Response): Promise<any> {
+     return await JoinValidator(req.query, async (data) => MySqlService.getState(data.status), StateRequest)
 }
