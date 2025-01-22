@@ -69,3 +69,39 @@ CHANGE COLUMN `opt_expiry` `otp_expiry` DATETIME NULL DEFAULT NULL ;
 ALTER TABLE `pnk`.`userCre` 
 ADD COLUMN `postCode` INT NULL AFTER `address`,
 ADD COLUMN `country` VARCHAR(45) NULL AFTER `postCode`;
+
+CREATE TABLE `pnk`.`emailOtp` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `email` VARCHAR(45) NOT NULL,
+  `otp` VARCHAR(6) NOT NULL,
+  `createAt` DATETIME NOT NULL,
+PRIMARY KEY (`id`));
+
+ALTER TABLE `pnk`.`emailOtp` 
+ADD UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE;
+;
+
+ALTER TABLE `pnk`.`userCre` 
+ADD UNIQUE INDEX `user_UNIQUE` (`user` ASC) VISIBLE,
+ADD UNIQUE INDEX `google_id_UNIQUE` (`google_id` ASC) VISIBLE;
+;
+
+CREATE TABLE `pnk`.`state` (
+  `id` INT NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
+  `status` INT NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_status` (`status` ASC) VISIBLE);
+
+ALTER TABLE `pnk`.`state` 
+CHANGE COLUMN `id` `id` INT NOT NULL AUTO_INCREMENT ;
+
+ALTER TABLE `pnk`.`userCre` 
+ADD COLUMN `city` VARCHAR(45) NULL AFTER `address`;
+
+ALTER TABLE `pnk`.`userCre` 
+CHANGE COLUMN `google_id` `google_id` VARCHAR(255) NULL ;
+
+ALTER TABLE `pnk`.`userCre` 
+CHANGE COLUMN `lastLogin` `lastLogin` DATETIME NULL ;
+
