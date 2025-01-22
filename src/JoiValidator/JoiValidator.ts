@@ -69,7 +69,7 @@ export const CreateAccountRequest = Joi.object({
      email: Joi.string().required(),
      name: Joi.string().required(),
      password: Joi.string().required(),
-     phone: Joi.number().required(),
+     phone: Joi.string().required(),
      address: Joi.string().required(),
      postCode: Joi.number().required(),
      city: Joi.string().required(),
@@ -80,4 +80,16 @@ export const CreateAccountRequest = Joi.object({
 
 export const StateRequest = Joi.object({
      status: Joi.number().required(),
+})
+
+export const EditAccountRequest = Joi.object({
+     email: Joi.string().required(),
+     name: Joi.string().required(),
+     password: Joi.any(),
+     phone: Joi.string().required(),
+     address: Joi.string().required(),
+     postCode: Joi.number().required(),
+     city: Joi.string().required(),
+     country: Joi.string().required(),
+     recaptchaToken: Joi.string().required(),
 })

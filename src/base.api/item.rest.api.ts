@@ -12,6 +12,7 @@ import {
      VerifyEmailRequest,
      CreateAccountRequest,
      StateRequest,
+     EditAccountRequest,
 } from '../JoiValidator/JoiValidator'
 import { getFile } from '../commond/commond'
 import { ResultType } from './index'
@@ -58,4 +59,8 @@ export async function OnCreateAccount(req: Request, res: Response): Promise<any>
 
 export async function OnGetState(req: Request, res: Response): Promise<any> {
      return await JoinValidator(req.query, async (data) => MySqlService.getState(data.status), StateRequest)
+}
+
+export async function OnEditAccount(req: Request, res: Response): Promise<any> {
+     return await JoinValidator(req.body, async (data) => MySqlService.editAccount(data), EditAccountRequest)
 }
