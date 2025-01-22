@@ -51,8 +51,12 @@ type UserValidate = {
      google_id: string
      user: string
      password: string
+     phone: string
      email: string
      address: string
+     city: string
+     postCode: string
+     country: string
      noTExists: string
 }
 
@@ -69,6 +73,36 @@ type UpdatePassword = {
      email: string
      password: string
      otp: string
+     recaptchaToken: string
+}
+
+type EmailOTP = {
+     email: string
+     recaptchaToken: string
+}
+
+type CreateAccount = {
+     email: string
+     name: string
+     password: string
+     phone: string
+     address: string
+     postCode: number
+     city: string
+     country: string
+     otp: string
+     recaptchaToken: string
+}
+
+type EditAccount = {
+     email: string
+     name: string
+     password: string
+     phone: string
+     address: string
+     postCode: number
+     city: string
+     country: string
      recaptchaToken: string
 }
 
@@ -150,11 +184,11 @@ export class MySqlService {
 
           const result: UserValidate = resultArray[0]
 
-          if (result.noTExists) {
+          if (result?.noTExists) {
                return { error: 'User does not exists.' }
           }
 
-          if (data.sub && !(await validateHash(data.sub, result.google_id || ''))) {
+          if (data.sub && !(await validateHash(data.sub, result?.google_id || ''))) {
                return { error: 'Invalid email or password.' }
           }
 
@@ -164,32 +198,33 @@ export class MySqlService {
 
           await this.exec('sp_update_user_last_login', [result.id])
 
-          return { id: result.id, email: result.email, name: result.user, address: result.address }
+          return { id: result.id, email: result.email, name: result.user, phone: result.phone, address: result.address, postCode: result.postCode, city: result.city, country: result.country }
      }
 
-     public static async sendOPT(data: SendOTP) {
+     public static async resetPasswordOtp(data: SendOTP) {
           const res: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
 
           if (res === STATUS.FAILED) {
-               return { error: 'Invalid OTP' }
+               return { ErrorMsg: 'Invalid OTP' }
           }
 
-          const opt: string = generateOTP()
-          const checkUserExists = await this.exec('sp_check_user_exists', [data.email, opt])
+          const otp: string = generateOTP()
+          const checkUserExists = await this.exec('sp_check_user_exists', [data.email, otp])
 
           if (checkUserExists) {
                return checkUserExists
           }
+
           const html: string = `
                <div>
                <p>Hello! This is from the Support Team.</p>
 
                <p>This is the One-Time Password (OTP) for resetting your password:</p>
 
-               <p><strong>${opt}</strong></p>
+               <p><strong>${otp}</strong></p>
 
                <p>This OTP will expire in 5 minutes. If you did not request this, please ignore this email.</p>
-               
+
                <p>Best regards,<br>
                     The Support Team</p>
                </div>
@@ -209,6 +244,80 @@ export class MySqlService {
 
           if (updatePassword) {
                return updatePassword
+          }
+
+          return
+     }
+
+     public static async emailOTP(data: EmailOTP) {
+          const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+          if (recaptcha === STATUS.FAILED) {
+               return { error: 'Invalid OTP' }
+          }
+
+          const otp: string = generateOTP()
+          const saveEmailOtp = await this.exec('sp_save_email_otp', [data.email, otp])
+
+          if (saveEmailOtp) {
+               return saveEmailOtp
+          }
+
+          const html: string = `
+               <div>
+               <p>Hello! This is from the Support Team.</p>
+
+               <p>This is the One-Time Password (OTP) for creating your account:</p>
+
+               <p><strong>${otp}</strong></p>
+
+               <p>This OTP will expire in 5 minutes. If you did not request this, please ignore this email.</p>
+
+               <p>Best regards,<br>
+                    The Support Team</p>
+               </div>
+          `
+
+          return await Mail.sendMail(data.email, 'Create Account', html)
+     }
+
+     public static async createAccount(data: CreateAccount) {
+          const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+          if (recaptcha === STATUS.FAILED) {
+               return { errorMsg: 'Invalid OTP' }
+          }
+
+          data.password = await hashing(data.password)
+
+          const res = await this.exec('sp_create_account', [data.email, data.name, data.password, data.phone, data.address, data.postCode, data.city, data.country, data.otp])
+
+          if (res) {
+               return res
+          }
+
+          return
+     }
+
+     public static async getState(status: number) {
+          return await this.exec('sp_get_state', [status])
+     }
+
+     public static async clearExpiryOTP() {
+          return await this.exec('sp_clear_expiry_otp', [])
+     }
+
+     public static async editAccount(data: EditAccount) {
+          const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+          if (recaptcha === STATUS.FAILED) {
+               return { errorMsg: 'Edit information failed, please check the edit information' }
+          }
+
+          const res = await this.exec('sp_edit_account', [data.email, data.name, data.password ? await hashing(data.password) : '', data.phone, data.address, data.postCode, data.city, data.country])
+
+          if (res) {
+               return res
           }
 
           return
