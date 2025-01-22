@@ -15,6 +15,7 @@ import {
      OnEmailOTP,
      OnCreateAccount,
      OnGetState,
+     OnEditAccount,
 } from './base.api/index'
 import { MySqlService } from './mySql/index'
 import { GoogleCloudStorage } from './GoogleCloud/index'
@@ -50,6 +51,7 @@ export class service {
           ApiBase.post('/reset/password', OnUpdatePassword, Auth.Bearer)
           ApiBase.post('/send/verify/otp', OnEmailOTP, Auth.Bearer)
           ApiBase.post('/create/account', OnCreateAccount, Auth.Bearer)
+          ApiBase.post('/edit/account', OnEditAccount, Auth.Bearer)
 
           // get
           ApiBase.get('/products', OnGetProductList, Auth.Bearer)
@@ -59,7 +61,7 @@ export class service {
           ApiBase.get('/subscribe', OnSubscribe, Auth.Bearer)
           ApiBase.get('/state', OnGetState, Auth.Bearer)
 
-          this.start()
+          // await this.start()
      }
 
      // program
