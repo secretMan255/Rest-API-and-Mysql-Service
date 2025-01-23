@@ -63,3 +63,20 @@ export async function recaptchaCheck(secret: string, token: string) {
 
      return STATUS.SUCCESS
 }
+
+export function resetPasswordHTML(otp: number) {
+     return `
+               <div>
+               <p>Hello! This is from the Support Team.</p>
+
+               <p>This is the One-Time Password (OTP) for resetting your password:</p>
+
+               <p><strong>${otp}</strong></p>
+
+               <p>This OTP will expire in 5 minutes. If you did not request this, please ignore this email.</p>
+               
+               <p>Best regards,<br>
+                    The Support Team</p>
+               </div>
+          `
+}
