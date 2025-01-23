@@ -219,79 +219,28 @@ DELIMITER ;
 DELIMITER $$
 CREATE PROCEDURE `sp_create_account`(
 	IN p_email VARCHAR(45),
-    	IN p_name VARCHAR(45),
-    	IN p_password VARCHAR(255),
-    	IN p_phone INT(15),
-    	IN p_address VARCHAR(255),
-    	IN p_postcode INT(6),
-	IN p_city VARCHAR(45),
-    	IN p_country VARCHAR(45),
-    	IN p_otp INT(6)
-)
-Main: BEGIN
-	DECLARE savedOtp VARCHAR(6);
-    DECLARE otpExpiry DATETIME;
-    DECLARE otpId INT;
-	
-	IF (p_email = '' OR p_email IS NULL 
-		OR p_name = '' OR p_name IS NULL 
-        OR p_password = '' OR p_password IS NULL 
-        OR p_phone = '' OR p_phone IS NULL 
-        OR p_address = '' OR p_address IS NULL
-        OR p_postcode = '' OR p_postcode IS NULL
-        OR p_city = '' OR p_city IS NULL
-        OR p_country = '' OR p_country IS NULL
-        OR p_otp = '' OR p_otp IS NULL) THEN
-		CALL pnk.sp_err('-1209', 'Missing params');
-		LEAVE Main;
-    END IF;
-    
-    IF EXISTS (SELECT * FROM pnk.userCre WHERE email = p_email) THEN 
-		SELECT 'Email have been registered.' AS errorMsg;
-        LEAVE Main;
-    END IF;
-    
-	IF NOT EXISTS (SELECT * FROM pnk.emailOtp WHERE email = p_email) THEN
-		SELECT 'Please request OTP again.' AS errorMsg;
-        LEAVE Main;
-    END IF;
-    
-    SELECT id, otp, createAt INTO otpId, savedOtp, otpExpiry FROM pnk.emailOtp WHERE email = p_email;
-    
-	IF (otpExpiry IS NULL OR utc_timestamp() > DATE_ADD(otpExpiry, INTERVAL 5 MINUTE)) THEN
-		SELECT 'OTP expired, please request OTP again.' AS errorMsg;
-		LEAVE Main;
-    END IF;
-    
-    IF (savedOtp != p_otp) THEN 
-		SELECT 'Invalid OTP' AS errorMsg;
-        LEAVE Main; 
-    END IF;
-    
-    INSERT INTO pnk.userCre(user, password, phone, email, address, city, postCode, country, createAt) 
-    VALUES (p_name, p_password, p_phone, p_email, p_address, p_city, p_postcode, p_country, utc_timestamp());
-    
-	DELETE FROM pnk.emailOtp WHERE id = otpId;
-END Main $$
-DELIMITER ;
-
-DELIMITER $$
-CREATE PROCEDURE `sp_create_account`(
-	IN p_email VARCHAR(45),
     IN p_name VARCHAR(45),
     IN p_password VARCHAR(255),
-    IN p_phone INT(15),
+    IN p_phone VARCHAR(15),
     IN p_address VARCHAR(255),
     IN p_postcode INT(6),
 	IN p_city VARCHAR(45),
     IN p_country VARCHAR(45),
-    IN p_otp INT(6)
+    IN p_otp VARCHAR(6)
 )
 Main: BEGIN
 	DECLARE savedOtp VARCHAR(6);
     DECLARE otpExpiry DATETIME;
     DECLARE otpId INT;
-	
+    
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SELECT '-1' AS ret, 'Transaction failed. Changes have been rolled back.' AS msg;
+    END;
+    
+    START TRANSACTION;
+
 	IF (p_email = '' OR p_email IS NULL 
 		OR p_name = '' OR p_name IS NULL 
         OR p_password = '' OR p_password IS NULL 
@@ -333,7 +282,12 @@ Main: BEGIN
     INSERT INTO pnk.userCre(user, password, phone, email, address, city, postCode, country, createAt) 
     VALUES (p_name, p_password, p_phone, p_email, p_address, p_city, p_postcode, p_country, utc_timestamp());
     
+    INSERT INTO pnk.cart(userId, status, createAt, updateAt) 
+    VALUES (LAST_INSERT_ID(), 1, utc_timestamp(), utc_timestamp());	
+    
 	DELETE FROM pnk.emailOtp WHERE id = otpId;
+    
+    COMMIT;
 END Main $$
 DELIMITER ;
 
@@ -345,14 +299,22 @@ CREATE PROCEDURE `sp_user_login`(
     IN p_password VARCHAR(255)
 )
 Main: BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        ROLLBACK;
+        SELECT '-1' AS ret, 'Transaction failed. Changes have been rolled back.' AS msg;
+    END;
+
 	IF (p_email IS NULL OR p_email = '') THEN
 		CALL pnk.sp_err('-1203', 'Missing params');
 		LEAVE Main;
 	END IF;
     
+	START TRANSACTION;
+    
 	-- Google login
 	IF (p_sub IS NOT NULL AND p_sub != '') THEN
-		IF EXISTS (SELECT 1 FROM pnk.userCre WHERE email = p_email) THEN 
+		IF EXISTS (SELECT 1 FROM pnk.userCre WHERE email = p_email) THEN
 			SELECT CRE.id, CRE.google_id, CRE.user, CRE.password, CRE.phone, CRE.email, CRE.address, CRE.postCode, STATE.name AS city, CRE.country 
             FROM pnk.userCre CRE 
             LEFT JOIN pnk.state STATE ON STATE.id = CRE.city
@@ -360,7 +322,13 @@ Main: BEGIN
 		ELSE 
 			INSERT INTO pnk.userCre(google_id, user, email, createAt, lastLogin)
 			VALUES (p_sub, p_name, p_email, utc_timestamp(), utc_timestamp());
+            
 			SELECT id, google_id, user, password, phone, email, address, postCode, city, country FROM pnk.userCre WHERE id = last_insert_id();
+            
+            INSERT INTO pnk.cart(userId, status, createAt, updateAt)
+			SELECT id, 1, utc_timestamp(), utc_timestamp()
+			FROM pnk.userCre
+			WHERE id = last_insert_id();
         END IF;
     ELSE 
 		IF NOT EXISTS (SELECT * FROM pnk.userCre WHERE email = p_email) THEN
@@ -372,5 +340,7 @@ Main: BEGIN
             WHERE CRE.email = p_email;
         END IF;
     END IF;
+    
+    COMMIT;    
 END Main $$
-DELIMITER ;
+DELIMITER ; 
