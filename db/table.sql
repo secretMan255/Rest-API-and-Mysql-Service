@@ -105,3 +105,26 @@ CHANGE COLUMN `google_id` `google_id` VARCHAR(255) NULL ;
 ALTER TABLE `pnk`.`userCre` 
 CHANGE COLUMN `lastLogin` `lastLogin` DATETIME NULL ;
 
+ALTER TABLE `pnk`.`items` 
+ADD COLUMN `qty` INT NOT NULL DEFAULT 0 AFTER `price`;
+
+CREATE TABLE `pnk`.`cart` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `userId` INT NOT NULL,
+  `status` INT NOT NULL DEFAULT 1,
+  `createAt` DATETIME NULL,
+  `updateAt` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_user_id` (`userId` ASC) VISIBLE,
+  INDEX `idx_status` (`status` ASC) VISIBLE);
+
+CREATE TABLE `pnk`.`cart_item` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `cart_id` INT NOT NULL,
+  `item_id` INT NOT NULL,
+  `qty` INT NOT NULL,
+  `createAt` DATETIME NULL,
+  `updateAt` DATETIME NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_card_id` (`cart_id` ASC) VISIBLE,
+  INDEX `idx_item_id` (`item_id` ASC) VISIBLE);
