@@ -3,9 +3,11 @@ import cors from 'cors'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import { inspect } from 'util'
+import cookieParser from 'cookie-parser'
 
 export enum Auth {
      Bearer = 'Bearer',
+     Cookie = 'Cookie',
      None = 'None',
 }
 
@@ -29,7 +31,8 @@ export class ApiBase {
                this.app = express()
                this.app.use(express.json())
                this.app.use(this.errorHandler)
-               this.app.use(cors())
+               this.app.use(cookieParser())
+               this.app.use(cors({ origin: 'http://localhost:3000', credentials: true, allowedHeaders: ['Content-Type', 'Authorization'], methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] }))
           }
 
           dotenv.config()
@@ -40,6 +43,14 @@ export class ApiBase {
           this.server = this.app.listen(resolvePort, resolveHost, () => {
                console.log(`Server is running at http://${resolveHost}:${resolvePort}`)
           })
+     }
+
+     public static generateToken(payload: object, expiresIn: string = String(process.env.EXPIRES_IN)): string {
+          if (!this.secretKey) {
+               throw new Error('Secret key is not defined')
+          }
+
+          return jwt.sign(payload, this.secretKey, { expiresIn })
      }
 
      public static get(endPoint: string, handler: (req: Request, res: Response) => Promise<any> | any, authType: Auth): void {
@@ -105,6 +116,8 @@ export class ApiBase {
                     return (req, res, next) => this.AutheticationToken(req, res, next)
                case Auth.None:
                     return (req, res, next) => this.NoAuthetication(req, res, next)
+               case Auth.Cookie:
+                    return (req, res, next) => this.CookieAuthetication(req, res, next)
                default:
                     throw new Error(`Unsupported authentication type: ${authType}`)
           }
@@ -136,6 +149,32 @@ export class ApiBase {
                })
           } else {
                res.status(401).json({ ret: -1, msg: 'Bearer token required' })
+          }
+     }
+
+     private static CookieAuthetication(req: Request, res: Response, next: NextFunction): void {
+          const cookieHeader: string | undefined = req.cookies?.authToken
+          if (cookieHeader) {
+               jwt.verify(cookieHeader, this.secretKey, (err, decoded) => {
+                    if (err) {
+                         res.status(401).json({ ret: -1, msg: 'Invalid token' })
+                    } else {
+                         const payload = decoded as JwtPayload
+                         if (!payload.user) {
+                              res.status(401).json({ ret: -1, msg: 'user is required' })
+                         } else if (!payload.id) {
+                              res.status(401).json({ ret: -1, mag: 'id is required' })
+                         } else if (!payload.email) {
+                              res.status(401).json({ ret: -1, msg: 'email is required' })
+                         } else if (!payload.name) {
+                              res.status(401).json({ ret: -1, msg: 'name is required' })
+                         } else {
+                              req['authUser'] = payload.user
+                              console.log('go')
+                              next()
+                         }
+                    }
+               })
           }
      }
 
