@@ -344,3 +344,85 @@ Main: BEGIN
     COMMIT;    
 END Main $$
 DELIMITER ; 
+
+DELIMITER $$
+CREATE PROCEDURE `sp_add_item_cart_qty`(
+    IN p_user_id INT,
+    IN p_item_id INT
+)
+Main: BEGIN
+	DECLARE cartId INT DEFAULT 0;
+    
+	IF (p_user_id IS NULL OR p_user_id = '' OR p_item_id IS NULL OR p_item_id = '') THEN
+		CALL pnk.sp_err('-1209', 'Missing params');
+        LEAVE Main;
+    END IF;
+    
+    
+    IF EXISTS (
+        SELECT 1
+        FROM pnk.cart_item ITEM
+        INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
+        WHERE CART.userId = p_user_id AND ITEM.id = p_item_id
+    ) THEN
+		UPDATE pnk.cart_item ITEM
+		INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
+		SET ITEM.qty = ITEM.qty + 1, ITEM.updateAt = utc_timestamp()
+		WHERE CART.userId = p_user_id AND ITEM.id = p_item_id;
+    ELSE 
+		SELECT id INTO cartId FROM pnk.cart WHERE userId = p_user_id; 
+			
+		IF cartId IS NULL THEN
+            INSERT INTO pnk.cart(userId, createAt, updateAt)
+            VALUES (p_user_id, UTC_TIMESTAMP(), UTC_TIMESTAMP());
+            SET cartId = LAST_INSERT_ID();
+        END IF;
+
+        INSERT INTO pnk.cart_item(cart_id, item_id, qty, createAt, updateAt)
+        VALUES (cartId, p_item_id, 1, UTC_TIMESTAMP(), UTC_TIMESTAMP());
+    END IF;
+END Main $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE `sp_minus_item_cart_qty`(
+	IN p_user_id INT,
+    IN p_item_id INT
+)
+Main: BEGIN
+	DECLARE itemQty INT;
+    DECLARE cartId INT DEFAULT 0;	
+
+	IF (p_user_id IS NULL OR p_user_id = '' OR p_item_id IS NULL OR p_item_id = '') THEN
+		CALL pnk.sp_err('-1209', 'Missing params');
+        LEAVE Main;
+    END IF;
+    
+    SELECT id INTO cartId 
+    FROM pnk.cart 
+    WHERE userId = p_user_id;
+    
+    IF cartId IS NULL THEN
+        INSERT INTO pnk.cart(userId, createAt, updateAt)
+        VALUES (p_user_id, UTC_TIMESTAMP(), UTC_TIMESTAMP());
+        SET cartId = LAST_INSERT_ID();
+    END IF;
+    
+    SELECT ITEM.qty INTO itemQty
+    FROM pnk.cart_item ITEM 
+    INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id 
+    WHERE CART.userId = p_user_id AND ITEM.id = p_item_id;
+    
+    IF itemQty = 1 THEN
+		DELETE ITEM.* 
+        FROM pnk.cart_item ITEM
+        INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
+        WHERE CART.userId = p_user_id AND ITEM.id = p_item_id;
+	ELSE
+		UPDATE pnk.cart_item ITEM
+        INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
+        SET ITEM.qty = ITEM.qty - 1, ITEM.updateAt = UTC_TIMESTAMP()
+        WHERE CART.userId = p_user_id AND ITEM.id = p_item_id;
+	END IF;
+END Main $$
+DELIMITER ;
