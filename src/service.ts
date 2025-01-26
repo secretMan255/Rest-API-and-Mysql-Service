@@ -16,6 +16,10 @@ import {
      OnCreateAccount,
      OnGetState,
      OnEditAccount,
+     OnGetCart,
+     OnAddItemCart,
+     OnMinusItemCart,
+     OnRemoveItemCart,
 } from './base.api/index'
 import { MySqlService } from './mySql/index'
 import { GoogleCloudStorage } from './GoogleCloud/index'
@@ -51,7 +55,10 @@ export class service {
           ApiBase.post('/reset/password', OnUpdatePassword, Auth.Bearer)
           ApiBase.post('/send/verify/otp', OnEmailOTP, Auth.Bearer)
           ApiBase.post('/create/account', OnCreateAccount, Auth.Bearer)
-          ApiBase.post('/edit/account', OnEditAccount, Auth.Bearer)
+          ApiBase.post('/edit/account', OnEditAccount, Auth.Cookie)
+          ApiBase.post('/edit/cart/add', OnAddItemCart, Auth.Cookie)
+          ApiBase.post('/edit/cart/minus', OnMinusItemCart, Auth.Cookie)
+          ApiBase.post('/edit/cart/remove', OnRemoveItemCart, Auth.Cookie)
 
           // get
           ApiBase.get('/products', OnGetProductList, Auth.Bearer)
@@ -60,6 +67,7 @@ export class service {
           ApiBase.get('/file/name', OnGetFileName, Auth.Bearer)
           ApiBase.get('/subscribe', OnSubscribe, Auth.Bearer)
           ApiBase.get('/state', OnGetState, Auth.Bearer)
+          ApiBase.get('/cart', OnGetCart, Auth.Cookie)
 
           // await this.start()
      }
