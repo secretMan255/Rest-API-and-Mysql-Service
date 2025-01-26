@@ -83,6 +83,7 @@ export const StateRequest = Joi.object({
 })
 
 export const EditAccountRequest = Joi.object({
+     id: Joi.number().required(),
      email: Joi.string().required(),
      name: Joi.string().required(),
      password: Joi.any(),
@@ -92,4 +93,15 @@ export const EditAccountRequest = Joi.object({
      city: Joi.string().required(),
      country: Joi.string().required(),
      recaptchaToken: Joi.string().required(),
+})
+
+export const CartItemRequest = Joi.object({
+     userId: Joi.number().required(),
+     itemId: Joi.number().required(),
+     recaptchaToken: Joi.string().required(),
+})
+
+export const GetCartRequest = Joi.object({
+     userId: Joi.string().required(),
+     tokenId: Joi.number().required(),
 })

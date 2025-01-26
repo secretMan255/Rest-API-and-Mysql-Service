@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise'
 import dotenv from 'dotenv'
-import { hashing, validateHash, generateOTP, recaptchaCheck, STATUS } from '../commond/commond'
+import { hashing, validateHash, generateOTP, recaptchaCheck, STATUS, CartRequestType } from '../commond/commond'
 import { Mail } from '../mail/mail'
 
 type ProductList = {
@@ -11,14 +11,6 @@ type ProductList = {
      status: number
 }
 
-type ItemList = {
-     id: number
-     name: string
-     price: number
-     describe: string
-     p_id: number
-}
-
 type GetProductList = {
      status: number
 }
@@ -27,23 +19,9 @@ type Subscribe = {
      email: string
 }
 
-type SubscribeRes = {
-     ret: number
-     msg: string
-}
-
 type SendOTP = {
      email: string
      recaptchaToken: string
-}
-
-type RecaptchaResponse = {
-     success: boolean
-     score: number
-     action?: string
-     challenge_ts?: string
-     hostname?: string
-     'error-codes'?: string[]
 }
 
 type UserValidate = {
@@ -95,6 +73,7 @@ type CreateAccount = {
 }
 
 type EditAccount = {
+     id: number
      email: string
      name: string
      password: string
@@ -103,6 +82,12 @@ type EditAccount = {
      postCode: number
      city: string
      country: string
+     recaptchaToken: string
+}
+
+type CartManage = {
+     userId: number
+     itemId: number
      recaptchaToken: string
 }
 
@@ -307,7 +292,11 @@ export class MySqlService {
           return await this.exec('sp_clear_expiry_otp', [])
      }
 
-     public static async editAccount(data: EditAccount) {
+     public static async editAccount(data: EditAccount, decodedJwt: any) {
+          if (data.id !== decodedJwt.id) {
+               return { errorMsg: 'Edit information failed, please check the edit information' }
+          }
+
           const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
 
           if (recaptcha === STATUS.FAILED) {
@@ -321,6 +310,62 @@ export class MySqlService {
           }
 
           return
+     }
+
+     public static async getCart(data: CartRequestType) {
+          if (data.tokenId === data.userId) {
+               return this.exec('sp_get_cart', [data.userId])
+          }
+
+          return { name: '', qty: '' }
+     }
+
+     public static async addCartItem(data: CartManage, decodedJwt: any) {
+          if (data.userId !== decodedJwt.id) {
+               return
+          }
+
+          const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+          if (recaptcha === STATUS.FAILED) {
+               return { errorMsg: 'Failed to add item to cart' }
+          }
+
+          const res = await this.exec('sp_add_item_cart_qty', [data.userId, data.itemId])
+
+          return res
+     }
+
+     public static async minusCartItem(data: CartManage, decodedJwt: any) {
+          if (data.userId !== decodedJwt.id) {
+               return
+          }
+
+          const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+          if (recaptcha === STATUS.FAILED) {
+               return { errorMsg: 'Failed to remove item to cart' }
+          }
+
+          const res = await this.exec('sp_minus_item_cart_qty', [data.userId, data.itemId])
+
+          return res
+     }
+
+     public static async removeCartItem(data: CartManage, decodedJwt: any) {
+          if (data.userId !== decodedJwt.id) {
+               return
+          }
+
+          const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+          if (recaptcha === STATUS.FAILED) {
+               return { errorMsg: 'Failed to remove item to cart' }
+          }
+
+          const res = await this.exec('sp_remove_item_cart', [data.userId, data.itemId])
+
+          return res
      }
 
      public static async terminate() {
