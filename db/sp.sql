@@ -371,7 +371,7 @@ Main: BEGIN
 		WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
         
         IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.item
+            UPDATE pnk.items
             SET qty = qty - 1
             WHERE id = p_item_id;
         END IF;
@@ -388,7 +388,7 @@ Main: BEGIN
         VALUES (cartId, p_item_id, 1, UTC_TIMESTAMP(), UTC_TIMESTAMP());
         
         IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.item
+            UPDATE pnk.items
             SET qty = qty - 1
             WHERE id = p_item_id;
         END IF;
@@ -439,7 +439,7 @@ Main: BEGIN
         WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
         
         IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.item
+            UPDATE pnk.items
             SET qty = qty + 1
             WHERE id = p_item_id;
         END IF;
@@ -450,7 +450,7 @@ Main: BEGIN
         WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
         
         IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.item
+            UPDATE pnk.items
             SET qty = qty + 1
             WHERE id = p_item_id;
         END IF;
@@ -514,7 +514,7 @@ Main: BEGIN
 	WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
     
     IF qtyCount > 0 THEN
-		UPDATE pnk.item
+		UPDATE pnk.items
 		SET qty = qty + qtyCount
 		WHERE id = p_item_id;
     END IF;
