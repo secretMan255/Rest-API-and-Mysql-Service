@@ -21,7 +21,7 @@ BEGIN
 	SELECT IT.id, IT.name, IT.price, IT.describe, IT.p_id
     FROM items IT
     INNER JOIN products PD ON IT.p_id = PD.id
-    WHERE PD.status = 1;
+    WHERE PD.status = 1 AND IT.status = 1;
 END $$
 DELIMITER ;
 
@@ -531,4 +531,14 @@ Main: BEGIN
     INNER JOIN pnk.items NA ON ITEM.item_id = NA.id
     WHERE CRE.id = p_user_id;
 END Main $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE `sp_get_main_product`()
+BEGIN
+	SELECT MA.name
+    FROM pnk.main_product MA
+    INNER JOIN pnk.products PDT ON MA.name = PDT.name
+    WHERE MA.status = 1 AND PDT.status = 1;
+END $$
 DELIMITER ;

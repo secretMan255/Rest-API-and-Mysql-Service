@@ -128,3 +128,12 @@ CREATE TABLE `pnk`.`cart_item` (
   PRIMARY KEY (`id`),
   INDEX `idx_card_id` (`cart_id` ASC) VISIBLE,
   INDEX `idx_item_id` (`item_id` ASC) VISIBLE);
+
+
+CREATE TABLE `pnk`.`main_product` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NOT NULL,
+  `createAt` DATETIME NOT NULL,
+  `status` INT NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  INDEX `idx_status` (`status` ASC) VISIBLE);
