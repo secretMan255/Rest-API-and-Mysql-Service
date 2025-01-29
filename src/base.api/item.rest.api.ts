@@ -15,6 +15,7 @@ import {
      EditAccountRequest,
      GetCartRequest,
      CartItemRequest,
+     GetMainProductRequest,
 } from '../JoiValidator/JoiValidator'
 import { getFile, CartRequestType } from '../commond/commond'
 import { ResultType } from './index'
@@ -29,6 +30,10 @@ export async function OnTest(req: Request, res: Response): Promise<any> {
 
 export async function OnGetProductList(req: Request, res: Response): Promise<any> {
      return await JoinValidator(req.query, async (data) => MySqlService.getPorductList(data), GetProductListRequest)
+}
+
+export async function OnGetMainProductList(req: Request, res: Response): Promise<any> {
+     return await JoinValidator(req.query, async (data) => MySqlService.getMainProductList(), GetMainProductRequest)
 }
 
 export async function OnGetItemList(req: Request, res: Response): Promise<any> {

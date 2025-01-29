@@ -145,6 +145,10 @@ export class MySqlService {
           return prodcuts
      }
 
+     public static async getMainProductList() {
+          return await this.exec('sp_get_main_product', [])
+     }
+
      public static async getItemList() {
           return await this.exec('sp_get_item')
      }

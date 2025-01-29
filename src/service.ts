@@ -20,6 +20,7 @@ import {
      OnAddItemCart,
      OnMinusItemCart,
      OnRemoveItemCart,
+     OnGetMainProductList,
 } from './base.api/index'
 import { MySqlService } from './mySql/index'
 import { GoogleCloudStorage } from './GoogleCloud/index'
@@ -68,6 +69,7 @@ export class service {
           ApiBase.get('/subscribe', OnSubscribe, Auth.Bearer)
           ApiBase.get('/state', OnGetState, Auth.Bearer)
           ApiBase.get('/cart', OnGetCart, Auth.Cookie)
+          ApiBase.get('/products/main', OnGetMainProductList, Auth.Bearer)
 
           // await this.start()
      }

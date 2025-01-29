@@ -14,6 +14,8 @@ export const GetProductListRequest = Joi.object({
      status: Joi.number().required(),
 })
 
+export const GetMainProductRequest = Joi.object({})
+
 export const GetItemListRequest = Joi.object({})
 
 export const GetImageRequest = Joi.object({
