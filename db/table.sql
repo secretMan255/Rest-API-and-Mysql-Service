@@ -137,3 +137,7 @@ CREATE TABLE `pnk`.`main_product` (
   `status` INT NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   INDEX `idx_status` (`status` ASC) VISIBLE);
+
+  ALTER TABLE `pnk`.`main_product` 
+CHANGE COLUMN `name` `p_id` VARCHAR(45) NOT NULL ;
+
