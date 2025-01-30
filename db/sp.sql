@@ -18,7 +18,7 @@ DELIMITER $$
 CREATE PROCEDURE `sp_get_item`(
 )
 BEGIN
-	SELECT IT.id, IT.name, IT.price, IT.describe, IT.p_id
+	SELECT IT.id, IT.name, IT.price, IT.describe, IT.p_id, IT.qty
     FROM items IT
     INNER JOIN products PD ON IT.p_id = PD.id
     WHERE PD.status = 1 AND IT.status = 1;
@@ -350,32 +350,54 @@ CREATE PROCEDURE `sp_add_item_cart_qty`(
     IN p_user_id INT,
     IN p_item_id INT
 )
+    SQL SECURITY INVOKER
 Main: BEGIN
 	DECLARE cartId INT DEFAULT 0;
+    DECLARE stock INT DEFAULT 0;
+    DECLARE cartQty INT DEFAULT 0;
+    
+    START TRANSACTION;
     
 	IF (p_user_id IS NULL OR p_user_id = '' OR p_item_id IS NULL OR p_item_id = '') THEN
+		ROLLBACK;
 		CALL pnk.sp_err('-1209', 'Missing params');
         LEAVE Main;
     END IF;
     
+     -- Check if the item exists and has sufficient quantity
+    SELECT qty INTO stock FROM pnk.items WHERE id = p_item_id;
+    IF stock <= 0 THEN
+        ROLLBACK;
+        SELECT 'Out of stock' AS msg;
+        LEAVE Main;
+    END IF;
     
+    -- Get current quantity in the user's cart
+    SELECT ITEM.qty INTO cartQty
+    FROM pnk.cart_item ITEM
+    INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
+    WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
+    
+    -- check if no more stock that user can add to cart
+    IF (cartQty >= stock) THEN
+		SELECT 'Out of stock' AS msg;
+        LEAVE Main;
+    END IF;
+    
+    -- Check if the cart and item already exist, then update the quantity
     IF EXISTS (
         SELECT 1
         FROM pnk.cart_item ITEM
         INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
         WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id
     ) THEN
+		-- Update item qty
 		UPDATE pnk.cart_item ITEM
 		INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
 		SET ITEM.qty = ITEM.qty + 1, ITEM.updateAt = utc_timestamp()
 		WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
-        
-        IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.items
-            SET qty = qty - 1
-            WHERE id = p_item_id;
-        END IF;
     ELSE 
+		-- If the cart does not exist, create a new cart
 		SELECT id INTO cartId FROM pnk.cart WHERE userId = p_user_id; 
 			
 		IF cartId IS NULL THEN
@@ -383,17 +405,15 @@ Main: BEGIN
             VALUES (p_user_id, UTC_TIMESTAMP(), UTC_TIMESTAMP());
             SET cartId = LAST_INSERT_ID();
         END IF;
-
-        INSERT INTO pnk.cart_item(cart_id, item_id, qty, createAt, updateAt)
-        VALUES (cartId, p_item_id, 1, UTC_TIMESTAMP(), UTC_TIMESTAMP());
         
-        IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.items
-            SET qty = qty - 1
-            WHERE id = p_item_id;
-        END IF;
+        -- Insert the item into the cart
+		INSERT INTO pnk.cart_item(cart_id, item_id, qty, createAt, updateAt)
+		VALUES (cartId, p_item_id, 1, UTC_TIMESTAMP(), UTC_TIMESTAMP());
     END IF;
     
+    COMMIT;
+    
+    -- Return the updated cart items for the user
     SELECT ITEM.item_id AS id, NA.name, ITEM.qty
     FROM pnk.userCre CRE
     INNER JOIN pnk.cart CART ON CART.userId = CRE.id
@@ -411,9 +431,12 @@ CREATE PROCEDURE `sp_minus_item_cart_qty`(
 Main: BEGIN
 	DECLARE itemQty INT;
     DECLARE cartId INT DEFAULT 0;	
-
+	
+	START TRANSACTION;
+    
 	IF (p_user_id IS NULL OR p_user_id = '' OR p_item_id IS NULL OR p_item_id = '') THEN
-		CALL pnk.sp_err('-1209', 'Missing params');
+		ROLLBACK;
+        CALL pnk.sp_err('-1209', 'Missing params');
         LEAVE Main;
     END IF;
     
@@ -437,24 +460,14 @@ Main: BEGIN
         FROM pnk.cart_item ITEM
         INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
         WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
-        
-        IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.items
-            SET qty = qty + 1
-            WHERE id = p_item_id;
-        END IF;
 	ELSE
 		UPDATE pnk.cart_item ITEM
         INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
         SET ITEM.qty = ITEM.qty - 1, ITEM.updateAt = UTC_TIMESTAMP()
         WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
-        
-        IF ROW_COUNT() > 0 THEN
-            UPDATE pnk.items
-            SET qty = qty + 1
-            WHERE id = p_item_id;
-        END IF;
 	END IF;
+    
+    COMMIT;
     
     SELECT ITEM.item_id AS id, NA.name, ITEM.qty
     FROM pnk.userCre CRE
