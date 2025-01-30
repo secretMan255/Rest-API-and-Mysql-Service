@@ -53,12 +53,12 @@ export class ApiBase {
           return jwt.sign(payload, this.secretKey, { expiresIn })
      }
 
-     public static get(endPoint: string, handler: (req: Request, res: Response) => Promise<any> | any, authType: Auth): void {
+     public static get(endPoint: string, handler: (req: Request, res: Response) => Promise<any> | any, allowedRoles: string[], authType: Auth): void {
           if (!this.app) {
                throw new Error('API service is not initialized...')
           }
 
-          this.app.get(endPoint, this.getAuthMiddleWare(authType), async (req: Request, res: Response) => {
+          this.app.get(endPoint, this.getAuthMiddleWare(authType), this.roleAuthentication(allowedRoles), async (req: Request, res: Response) => {
                try {
                     console.log(
                          `Request: \n { Headers :${inspect(req.headers, { depth: null, colors: true })} \n Query: ${inspect(req.query, { depth: null, colors: true })} \n Body: ${inspect(req.body, {
@@ -87,12 +87,12 @@ export class ApiBase {
           })
      }
 
-     public static post(endPoint: string, handler: (req: Request, res: Response) => Promise<any> | any, authType: Auth): void {
+     public static post(endPoint: string, handler: (req: Request, res: Response) => Promise<any> | any, allowedRoles: string[], authType: Auth): void {
           if (!this.app) {
                throw new Error('API service is not initialized...')
           }
 
-          this.app.post(endPoint, this.getAuthMiddleWare(authType), async (req: Request, res: Response) => {
+          this.app.post(endPoint, this.getAuthMiddleWare(authType), this.roleAuthentication(allowedRoles), async (req: Request, res: Response) => {
                try {
                     console.log(
                          `Request: \n { Headers :${inspect(req.headers, { depth: null, colors: true })} \n Query: ${inspect(req.query, { depth: null, colors: true })} \n Body: ${inspect(req.body, {
@@ -139,10 +139,10 @@ export class ApiBase {
                     } else {
                          const payload = decoded as JwtPayload
 
-                         if (!payload.user) {
-                              res.status(401).json({ ret: -1, msg: 'user is required' })
+                         if (!payload.role) {
+                              res.status(401).json({ ret: -1, msg: 'role is required' })
                          } else {
-                              req['authUser'] = payload.user
+                              req['authUser'] = payload
                               next()
                          }
                     }
@@ -153,14 +153,17 @@ export class ApiBase {
      }
 
      private static CookieAuthetication(req: Request, res: Response, next: NextFunction): void {
-          const cookieHeader: string | undefined = req.cookies?.authToken
-          if (cookieHeader) {
-               jwt.verify(cookieHeader, this.secretKey, (err, decoded) => {
+          const token: string | undefined = req.cookies?.authToken
+
+          if (!token) {
+               res.status(401).json({ ret: -1, msg: 'Cookie token required' })
+          } else {
+               jwt.verify(token, this.secretKey, (err, decoded) => {
                     if (err) {
                          res.status(401).json({ ret: -1, msg: 'Invalid token' })
                     } else {
                          const payload = decoded as JwtPayload
-                         if (!payload.user) {
+                         if (!payload.role) {
                               res.status(401).json({ ret: -1, msg: 'user is required' })
                          } else if (!payload.id) {
                               res.status(401).json({ ret: -1, mag: 'id is required' })
@@ -169,8 +172,7 @@ export class ApiBase {
                          } else if (!payload.name) {
                               res.status(401).json({ ret: -1, msg: 'name is required' })
                          } else {
-                              req['authUser'] = payload.user
-                              console.log('go')
+                              req['authUser'] = payload
                               next()
                          }
                     }
@@ -179,8 +181,25 @@ export class ApiBase {
      }
 
      private static errorHandler(err: any, req: Request, res: Response, next: NextFunction): void {
-          console.error(err.stack)
           res.status(500).json({ ret: -1, msg: `Internal server error, ${err.message}` })
+     }
+
+     private static roleAuthentication(allowedRoles: string[]) {
+          return (req: Request, res: Response, next: NextFunction): void => {
+               const authUser = req['authUser']
+
+               if (!authUser || !authUser.role) {
+                    res.status(403).json({ ret: -1, msg: 'Access Denied: No role assigned' })
+                    return
+               }
+
+               if (!allowedRoles.includes(authUser.role)) {
+                    res.status(403).json({ ret: -1, msg: 'Access Denied: Insufficient permissions' })
+                    return
+               }
+
+               next()
+          }
      }
 
      public static terminate() {

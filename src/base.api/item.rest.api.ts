@@ -55,7 +55,7 @@ export async function OnUserLogin(req: Request, res: Response): Promise<any> {
           return userData
      }
 
-     const token = ApiBase.generateToken({ id: userData.id, user: 'customer', email: userData.email, name: userData.name })
+     const token = ApiBase.generateToken({ id: userData.id, role: 'customer', email: userData.email, name: userData.name })
 
      res.cookie('authToken', token, {
           httpOnly: true,
@@ -66,8 +66,6 @@ export async function OnUserLogin(req: Request, res: Response): Promise<any> {
      userData.token = token
 
      return userData
-
-     // return await JoinValidator(req.body, async (data) => MySqlService.userLogin(data), UserLoginRequest)
 }
 
 export async function OnResetPassowrdOTP(req: Request, res: Response): Promise<any> {

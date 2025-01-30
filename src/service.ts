@@ -28,6 +28,7 @@ import { Mail } from './mail/index'
 import { CronService } from './cronService/index'
 import { CronJob } from 'cron'
 import dotenv from 'dotenv'
+import { ROLE } from './commond/commond'
 
 export class service {
      private static cronJob: CronJob
@@ -46,30 +47,30 @@ export class service {
           await Mail.init()
 
           // test
-          ApiBase.get('/test', OnTest, Auth.None)
+          ApiBase.get('/test', OnTest, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.None)
 
           // post
-          ApiBase.post('/upload/image', OnUploadImage, Auth.Bearer)
-          ApiBase.post('/file/delete', OnDeleteFile, Auth.Bearer)
-          ApiBase.post('/login/user', OnUserLogin, Auth.Bearer)
-          ApiBase.post('/send/reset/otp', OnResetPassowrdOTP, Auth.Bearer)
-          ApiBase.post('/reset/password', OnUpdatePassword, Auth.Bearer)
-          ApiBase.post('/send/verify/otp', OnEmailOTP, Auth.Bearer)
-          ApiBase.post('/create/account', OnCreateAccount, Auth.Bearer)
-          ApiBase.post('/edit/account', OnEditAccount, Auth.Cookie)
-          ApiBase.post('/edit/cart/add', OnAddItemCart, Auth.Cookie)
-          ApiBase.post('/edit/cart/minus', OnMinusItemCart, Auth.Cookie)
-          ApiBase.post('/edit/cart/remove', OnRemoveItemCart, Auth.Cookie)
+          ApiBase.post('/upload/image', OnUploadImage, [ROLE.ADMIN], Auth.Bearer)
+          ApiBase.post('/file/delete', OnDeleteFile, [ROLE.ADMIN], Auth.Bearer)
+          ApiBase.post('/login/user', OnUserLogin, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.post('/send/reset/otp', OnResetPassowrdOTP, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.post('/reset/password', OnUpdatePassword, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.post('/send/verify/otp', OnEmailOTP, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.post('/create/account', OnCreateAccount, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.post('/edit/account', OnEditAccount, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
+          ApiBase.post('/edit/cart/add', OnAddItemCart, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
+          ApiBase.post('/edit/cart/minus', OnMinusItemCart, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
+          ApiBase.post('/edit/cart/remove', OnRemoveItemCart, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
 
           // get
-          ApiBase.get('/products', OnGetProductList, Auth.Bearer)
-          ApiBase.get('/items', OnGetItemList, Auth.Bearer)
-          ApiBase.get('/image', OnGetImage, Auth.Bearer)
-          ApiBase.get('/file/name', OnGetFileName, Auth.Bearer)
-          ApiBase.get('/subscribe', OnSubscribe, Auth.Bearer)
-          ApiBase.get('/state', OnGetState, Auth.Bearer)
-          ApiBase.get('/cart', OnGetCart, Auth.Cookie)
-          ApiBase.get('/products/main', OnGetMainProductList, Auth.Bearer)
+          ApiBase.get('/products', OnGetProductList, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.get('/items', OnGetItemList, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.get('/image', OnGetImage, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.get('/file/name', OnGetFileName, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.get('/subscribe', OnSubscribe, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.get('/state', OnGetState, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          ApiBase.get('/cart', OnGetCart, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
+          ApiBase.get('/products/main', OnGetMainProductList, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
 
           // await this.start()
      }
