@@ -141,3 +141,14 @@ CREATE TABLE `pnk`.`main_product` (
   ALTER TABLE `pnk`.`main_product` 
 CHANGE COLUMN `name` `p_id` VARCHAR(45) NOT NULL ;
 
+CREATE TABLE `pnk`.`checkout_pending` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `userId` INT NOT NULL,
+  `itemId` INT NOT NULL,
+  `qty` INT NOT NULL,
+  `amt` DECIMAL(8,2) NOT NULL,
+  `createAt` DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `idx_user_id` (`userId` ASC) VISIBLE,
+  INDEX `idx_item_id` (`itemId` ASC) VISIBLE);
+

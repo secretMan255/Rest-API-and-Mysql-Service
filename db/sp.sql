@@ -414,7 +414,7 @@ Main: BEGIN
     COMMIT;
     
     -- Return the updated cart items for the user
-    SELECT ITEM.item_id AS id, NA.name, ITEM.qty
+    SELECT ITEM.item_id AS id, NA.name, ITEM.qty, NA.qty AS stock_remain, NA.price
     FROM pnk.userCre CRE
     INNER JOIN pnk.cart CART ON CART.userId = CRE.id
     INNER JOIN pnk.cart_item ITEM ON ITEM.cart_id = CART.id
@@ -469,7 +469,7 @@ Main: BEGIN
     
     COMMIT;
     
-    SELECT ITEM.item_id AS id, NA.name, ITEM.qty
+    SELECT ITEM.item_id AS id, NA.name, ITEM.qty, NA.qty AS stock_remain, NA.price
     FROM pnk.userCre CRE
     INNER JOIN pnk.cart CART ON CART.userId = CRE.id
     INNER JOIN pnk.cart_item ITEM ON ITEM.cart_id = CART.id
@@ -488,7 +488,7 @@ Main: BEGIN
         LEAVE Main;
     END IF;
     
-    SELECT ITEM.item_id AS id, NA.name, ITEM.qty
+    SELECT ITEM.item_id AS id, NA.name, ITEM.qty, NA.qty AS stock_remain, NA.price
     FROM pnk.userCre CRE
     INNER JOIN pnk.cart CART ON CART.userId = CRE.id
     INNER JOIN pnk.cart_item ITEM ON ITEM.cart_id = CART.id
@@ -526,18 +526,12 @@ Main: BEGIN
 	INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
 	WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
     
-    IF qtyCount > 0 THEN
-		UPDATE pnk.items
-		SET qty = qty + qtyCount
-		WHERE id = p_item_id;
-    END IF;
-    
     DELETE ITEM.* 
 	FROM pnk.cart_item ITEM
 	INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
 	WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
     
-    SELECT ITEM.item_id AS id, NA.name, ITEM.qty
+    SELECT ITEM.item_id AS id, NA.name, ITEM.qty, NA.price
     FROM pnk.userCre CRE
     INNER JOIN pnk.cart CART ON CART.userId = CRE.id
     INNER JOIN pnk.cart_item ITEM ON ITEM.cart_id = CART.id
@@ -554,4 +548,74 @@ BEGIN
     INNER JOIN pnk.products PDT ON MA.name = PDT.name
     WHERE MA.status = 1 AND PDT.status = 1;
 END $$
+DELIMITER ;
+
+DELIMITER $$
+CREATE PROCEDURE `sp_insert_pending_checkout`(
+	IN p_user_id INT,
+    IN p_item_id INT,
+    IN p_qty INT,
+    IN p_amt INT
+)
+    SQL SECURITY INVOKER
+Main: BEGIN
+	IF (p_user_id IS NULL OR p_user_id = ''OR p_item_id IS NULL OR p_item_id = '' OR p_qty IS NULL OR p_qty = '' OR p_amt IS NULL OR p_amt = '') THEN
+		CALL pnk.sp_err('-1029', 'Invalid param');
+        LEAVE Main;
+    END IF;
+    
+	START TRANSACTION;
+    
+    -- check if item out of stock
+    IF NOT EXISTS (SELECT 1 FROM pnk.items WHERE id = p_item_id AND qty >= p_qty) THEN
+		SELECT 'item out of stock' AS outOfStock;
+		LEAVE Main;
+    END IF;
+    
+    -- deduct stock
+    UPDATE pnk.items
+    SET qty = qty - p_qty
+    WHERE id = p_item_id;
+    
+    -- check if pending checkout exists
+    IF EXISTS (SELECT 1 FROM pnk.checkout_pending WHERE userId = p_user_id AND itemId = p_item_id) THEN
+		UPDATE pnk.checkout_pending
+        SET qty = qty + p_qty
+        WHERE userId = p_user_id AND itemId = p_item_id;
+    ELSE 
+		-- insert pending checkout 
+		INSERT INTO pnk.checkout_pending(userId, itemId, qty, amt, createAt)
+		VALUES(p_user_id, p_item_id, p_qty, p_amt, utc_timestamp());
+    END IF;
+    
+    COMMIT;
+END Main $$
+DELIMITER ;
+
+DELIMITER ;
+CREATE PROCEDURE `sp_delete_pending_checkout`(
+	IN p_user_id INT
+)
+    SQL SECURITY INVOKER
+Main: BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; END;
+
+	START TRANSACTION;
+    
+    IF (p_user_id IS NULL OR p_user_id = '' ) THEN
+		CALL pnk.sp_err('-1209', 'Invalid param');
+		LEAVE Main;
+    END IF;
+    
+    -- restore all the stock 
+    UPDATE pnk.items ITEM
+    INNER JOIN pnk.checkout_pending PENDING ON ITEM.id = PENDING.itemId
+    SET ITEM.qty = ITEM.qty + PENDING.qty
+    WHERE PENDING.userId = p_user_id;
+    
+    -- delete restore stock
+    DELETE FROM pnk.checkout_pending PENDING WHERE PENDING.userId = p_user_id;
+    
+    COMMIT;
+END Main $$
 DELIMITER ;
