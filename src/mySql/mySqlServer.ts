@@ -1,6 +1,6 @@
 import mysql from 'mysql2/promise'
 import dotenv from 'dotenv'
-import { hashing, validateHash, generateOTP, recaptchaCheck, STATUS, CartRequestType } from '../commond/commond'
+import { hashing, validateHash, generateOTP, recaptchaCheck, STATUS, CartRequestType, CheckoutPendingType } from '../commond/commond'
 import { Mail } from '../mail/mail'
 
 type ProductList = {
@@ -89,6 +89,15 @@ type CartManage = {
      userId: number
      itemId: number
      recaptchaToken: string
+}
+
+type PendingCheckout = {
+     userId: number
+     itemId: number
+     name: string
+     qty: number
+     stockRemain: number
+     totalAmt: number
 }
 
 export class MySqlService {
@@ -318,7 +327,7 @@ export class MySqlService {
 
      public static async getCart(data: CartRequestType) {
           if (data.tokenId === data.userId) {
-               return this.exec('sp_get_cart', [data.userId])
+               return await this.exec('sp_get_cart', [data.userId])
           }
 
           return { name: '', qty: '' }
@@ -370,6 +379,71 @@ export class MySqlService {
           const res = await this.exec('sp_remove_item_cart', [data.userId, data.itemId])
 
           return res
+     }
+
+     public static async checkOutPending(data: CheckoutPendingType, decodedJwt: any) {
+          if (data.userId !== decodedJwt.id) {
+               return { errorMsg: 'Please checkout later' }
+          }
+
+          const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+          if (recaptcha === STATUS.FAILED) {
+               return { errorMsg: 'Please checkout later' }
+          }
+
+          const items = await this.exec('sp_get_cart', [data.userId])
+          const checkoutPendingItems: PendingCheckout[] = []
+          const outOfStockItems = []
+
+          // check which item is out of stock
+          for (let item of items) {
+               if (item.in_stock) {
+                    checkoutPendingItems.push({
+                         userId: data.userId,
+                         itemId: item.id,
+                         name: item.name,
+                         qty: item.qty,
+                         stockRemain: item.stock_remain,
+                         totalAmt: item.price * item.qty,
+                    })
+               } else {
+                    outOfStockItems.push({
+                         itemId: item.id,
+                         name: item.name,
+                         qty: item.qty,
+                         stockRemain: item.stock_remain,
+                    })
+               }
+          }
+
+          // return if item are out of stock
+          if (outOfStockItems.length > 0) {
+               return { status: false, msg: 'Some items are out of stock', items: outOfStockItems }
+          }
+
+          // insert items into pending table
+          for (let item of checkoutPendingItems) {
+               const res = await this.exec('sp_insert_pending_checkout', [item.userId, item.itemId, item.qty, item.totalAmt])
+
+               // check if other user are faster to insert
+               if (res) {
+                    outOfStockItems.push({
+                         itemId: item.itemId,
+                         name: item.name,
+                         qty: item.qty,
+                         stockRemain: item.stockRemain,
+                    })
+               }
+          }
+
+          // delete pending checkout and return if item are out of stock
+          if (outOfStockItems.length > 0) {
+               await this.exec('sp_delete_pending_checkout', [data.userId])
+               return { status: false, msg: 'Some items are out of stock', items: outOfStockItems }
+          }
+
+          return { status: true, msg: 'Pending payment', items: checkoutPendingItems }
      }
 
      public static async terminate() {
