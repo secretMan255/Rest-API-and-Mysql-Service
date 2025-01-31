@@ -21,6 +21,7 @@ import {
      OnMinusItemCart,
      OnRemoveItemCart,
      OnGetMainProductList,
+     OnCheckOutPending,
 } from './base.api/index'
 import { MySqlService } from './mySql/index'
 import { GoogleCloudStorage } from './GoogleCloud/index'
@@ -61,6 +62,7 @@ export class service {
           ApiBase.post('/edit/cart/add', OnAddItemCart, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
           ApiBase.post('/edit/cart/minus', OnMinusItemCart, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
           ApiBase.post('/edit/cart/remove', OnRemoveItemCart, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
+          ApiBase.post('/checkout/pending', OnCheckOutPending, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Cookie)
 
           // get
           ApiBase.get('/products', OnGetProductList, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
