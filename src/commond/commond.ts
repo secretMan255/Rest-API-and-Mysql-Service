@@ -15,9 +15,24 @@ type RecaptchaResponse = {
      'error-codes'?: string[]
 }
 
+export type CartRequestType = {
+     userId: string
+     tokenId: string
+}
+
+export type CheckoutPendingType = {
+     userId: number
+     recaptchaToken: string
+}
+
 export enum STATUS {
      SUCCESS = 0,
      FAILED = -1,
+}
+
+export enum ROLE {
+     ADMIN = 'admin',
+     CUSTOMER = 'customer',
 }
 
 export function getFile(data: GetFile) {
