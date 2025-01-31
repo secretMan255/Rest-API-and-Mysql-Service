@@ -16,6 +16,7 @@ import {
      GetCartRequest,
      CartItemRequest,
      GetMainProductRequest,
+     CheckoutPendingRequest,
 } from '../JoiValidator/JoiValidator'
 import { getFile, CartRequestType } from '../commond/commond'
 import { ResultType } from './index'
@@ -63,7 +64,7 @@ export async function OnUserLogin(req: Request, res: Response): Promise<any> {
           sameSite: 'lax',
           maxAge: 24 * 60 * 60 * 1000,
      })
-     userData.token = token
+     // userData.token = token
 
      return userData
 }
@@ -115,4 +116,9 @@ export async function OnMinusItemCart(req: Request, res: Response): Promise<any>
 export async function OnRemoveItemCart(req: Request, res: Response): Promise<any> {
      const decodedJwt = jwt.verify(req.cookies?.authToken, process.env.SECRET_KEY) as JwtPayload
      return await JoinValidator(req.body, async (data) => MySqlService.removeCartItem(data, decodedJwt), CartItemRequest)
+}
+
+export async function OnCheckOutPending(req: Request, res: Response): Promise<any> {
+     const decodedJwt = jwt.verify(req.cookies?.authToken, process.env.SECRET_KEY) as JwtPayload
+     return await JoinValidator(req.body, async (data) => MySqlService.checkOutPending(data, decodedJwt), CheckoutPendingRequest)
 }
