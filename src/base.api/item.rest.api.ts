@@ -63,8 +63,8 @@ export async function OnUserLogin(req: Request, res: Response): Promise<any> {
           secure: false, // process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: 24 * 60 * 60 * 1000,
+          path: '/',
      })
-     // userData.token = token
 
      return userData
 }
