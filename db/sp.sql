@@ -597,18 +597,31 @@ Main: BEGIN
 	START TRANSACTION;
     
     IF (p_user_id IS NULL OR p_user_id = '' ) THEN
-		CALL pnk.sp_err('-1209', 'Invalid param');
-		LEAVE Main;
-    END IF;
-    
-    -- restore all the stock 
-    UPDATE pnk.items ITEM
-    INNER JOIN pnk.checkout_pending PENDING ON ITEM.id = PENDING.itemId
-    SET ITEM.qty = ITEM.qty + PENDING.qty
-    WHERE PENDING.userId = p_user_id;
-    
-    -- delete restore stock
-    DELETE FROM pnk.checkout_pending PENDING WHERE PENDING.userId = p_user_id;
+		-- Lock expired rows
+        SELECT * 
+        FROM pnk.checkout_pending 
+        WHERE utc_timestamp() > DATE_ADD(createAt, INTERVAL 5 MINUTE) 
+        FOR UPDATE;
+        
+        -- Restore stock for expired checkouts
+        UPDATE pnk.items ITEM
+		INNER JOIN pnk.checkout_pending PENDING ON ITEM.id = PENDING.itemId
+		SET ITEM.qty = ITEM.qty + PENDING.qty
+		WHERE utc_timestamp() > DATE_ADD(PENDING.createAt, INTERVAL 5 MINUTE);
+		
+        -- Delete expired pending checkouts
+		DELETE FROM pnk.checkout_pending
+		WHERE utc_timestamp() > DATE_ADD(createAt, INTERVAL 5 MINUTE);
+    ELSE
+		-- Restore stock for the specified user
+		UPDATE pnk.items ITEM
+		INNER JOIN pnk.checkout_pending PENDING ON ITEM.id = PENDING.itemId
+		SET ITEM.qty = ITEM.qty + PENDING.qty
+		WHERE PENDING.userId = p_user_id;
+		
+		 -- Delete pending checkouts for the specified user
+		DELETE FROM pnk.checkout_pending PENDING WHERE PENDING.userId = p_user_id;
+	END IF;
     
     COMMIT;
 END Main $$
