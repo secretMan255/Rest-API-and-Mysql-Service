@@ -504,7 +504,6 @@ CREATE PROCEDURE `sp_remove_item_cart`(
 )
 Main: BEGIN
 	DECLARE cartId INT DEFAULT 0;
-    DECLARE qtyCount INT DEFAULT 0;
 	
     IF (p_user_id IS NULL OR p_user_id = '' OR p_item_id IS NULL OR p_item_id = '') THEN
 		CALL pnk.sp_err('-1209', 'Missing params');
@@ -520,11 +519,6 @@ Main: BEGIN
         VALUES (p_user_id, UTC_TIMESTAMP(), UTC_TIMESTAMP());
         SET cartId = LAST_INSERT_ID();
     END IF;
-    
-    SELECT ITEM.qty INTO qtyCount
-    FROM pnk.cart_item ITEM
-	INNER JOIN pnk.cart CART ON ITEM.cart_id = CART.id
-	WHERE CART.userId = p_user_id AND ITEM.item_id = p_item_id;
     
     DELETE ITEM.* 
 	FROM pnk.cart_item ITEM
