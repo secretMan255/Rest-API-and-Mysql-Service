@@ -10,6 +10,8 @@ export class CronService {
 
      private static async clearExpiryOTP() {
           await MySqlService.clearExpiryOTP()
-          console.log('Clear Expiry otp')
+          console.log('Clear expiry otp')
+          await MySqlService.deleteCheckoutList()
+          console.log('Clear pending checkout')
      }
 }
