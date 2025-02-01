@@ -92,7 +92,6 @@ type CartManage = {
 }
 
 type PendingCheckout = {
-     userId: number
      itemId: number
      name: string
      qty: number
@@ -381,7 +380,7 @@ export class MySqlService {
           return res
      }
 
-     public static async checkOutPending(data: CheckoutPendingType, decodedJwt: any) {
+     public static async checkoutPending(data: CheckoutPendingType, decodedJwt: any) {
           if (data.userId !== decodedJwt.id) {
                return { errorMsg: 'Please checkout later' }
           }
@@ -400,7 +399,6 @@ export class MySqlService {
           for (let item of items) {
                if (item.in_stock) {
                     checkoutPendingItems.push({
-                         userId: data.userId,
                          itemId: item.id,
                          name: item.name,
                          qty: item.qty,
@@ -419,12 +417,13 @@ export class MySqlService {
 
           // return if item are out of stock
           if (outOfStockItems.length > 0) {
+               await this.exec('sp_delete_pending_checkout', [data.userId])
                return { status: false, msg: 'Some items are out of stock', items: outOfStockItems }
           }
 
           // insert items into pending table
           for (let item of checkoutPendingItems) {
-               const res = await this.exec('sp_insert_pending_checkout', [item.userId, item.itemId, item.qty, item.totalAmt])
+               const res = await this.exec('sp_insert_pending_checkout', [data.userId, item.itemId, item.qty, item.totalAmt])
 
                // check if other user are faster to insert
                if (res) {
@@ -439,11 +438,26 @@ export class MySqlService {
 
           // delete pending checkout and return if item are out of stock
           if (outOfStockItems.length > 0) {
+               // prevent check recaptcha again
                await this.exec('sp_delete_pending_checkout', [data.userId])
                return { status: false, msg: 'Some items are out of stock', items: outOfStockItems }
           }
 
           return { status: true, msg: 'Pending payment', items: checkoutPendingItems }
+     }
+
+     public static async deleteCheckoutList(data?: CheckoutPendingType, decodedJwt?: any) {
+          if (data.userId) {
+               const recaptcha: number = await recaptchaCheck(this.RecaptchaSecret, data.recaptchaToken)
+
+               if (data.userId != decodedJwt.id || recaptcha === STATUS.FAILED) {
+                    return { errorMsg: 'Please checkout later' }
+               }
+
+               return await this.exec('sp_delete_pending_checkout', [data.userId])
+          }
+
+          return await this.exec('sp_delete_pending_checkout', [])
      }
 
      public static async terminate() {

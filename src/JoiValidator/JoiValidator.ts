@@ -108,7 +108,12 @@ export const GetCartRequest = Joi.object({
      tokenId: Joi.number().required(),
 })
 
-export const CheckoutPendingRequest = Joi.object({
+export const checkoutPendingRequest = Joi.object({
+     userId: Joi.number().required(),
+     recaptchaToken: Joi.string().required(),
+})
+
+export const checkoutDeleteRequest = Joi.object({
      userId: Joi.number().required(),
      recaptchaToken: Joi.string().required(),
 })
