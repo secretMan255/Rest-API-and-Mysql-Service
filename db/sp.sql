@@ -553,6 +553,8 @@ CREATE PROCEDURE `sp_insert_pending_checkout`(
 )
     SQL SECURITY INVOKER
 Main: BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; END;
+    
 	IF (p_user_id IS NULL OR p_user_id = ''OR p_item_id IS NULL OR p_item_id = '' OR p_qty IS NULL OR p_qty = '' OR p_amt IS NULL OR p_amt = '') THEN
 		CALL pnk.sp_err('-1029', 'Invalid param');
         LEAVE Main;
@@ -581,6 +583,18 @@ Main: BEGIN
 		INSERT INTO pnk.checkout_pending(userId, itemId, qty, amt, createAt)
 		VALUES(p_user_id, p_item_id, p_qty, p_amt, utc_timestamp());
     END IF;
+    
+    SELECT 'StateShippingFee' AS type, STA.shipping_fee AS shippingFee, NULL AS itemId
+    FROM userCre USER
+    INNER JOIN state STA ON USER.city = STA.id
+    WHERE USER.id = p_user_id
+
+    UNION ALL
+
+    SELECT 'ItemShippingFee' AS type, ITEM.shipping_fee AS shippingFee, ITEM.id AS itemId
+    FROM checkout_pending PENDING
+    INNER JOIN items ITEM ON PENDING.itemId = ITEM.id
+    WHERE PENDING.userId = p_user_id;
     
     COMMIT;
 END Main $$

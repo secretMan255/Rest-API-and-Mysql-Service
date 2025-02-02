@@ -95,6 +95,7 @@ type PendingCheckout = {
      itemId: number
      name: string
      qty: number
+     amt: number
      stockRemain: number
      totalAmt: number
 }
@@ -111,7 +112,7 @@ export class MySqlService {
 
           try {
                // Create a connection instance
-               this.Instance = await mysql.createConnection(this.MysqlURL)
+               this.Instance = await mysql.createConnection({ uri: this.MysqlURL, multipleStatements: true })
                console.log('Connected to MySQL database!')
           } catch (err) {
                console.error('Error connecting to MySQL:', err)
@@ -394,6 +395,7 @@ export class MySqlService {
           const items = await this.exec('sp_get_cart', [data.userId])
           const checkoutPendingItems: PendingCheckout[] = []
           const outOfStockItems = []
+          const shippingFee = []
 
           // check which item is out of stock
           for (let item of items) {
@@ -402,6 +404,7 @@ export class MySqlService {
                          itemId: item.id,
                          name: item.name,
                          qty: item.qty,
+                         amt: item.price,
                          stockRemain: item.stock_remain,
                          totalAmt: item.price * item.qty,
                     })
@@ -410,6 +413,7 @@ export class MySqlService {
                          itemId: item.id,
                          name: item.name,
                          qty: item.qty,
+                         amt: item.price,
                          stockRemain: item.stock_remain,
                     })
                }
@@ -426,7 +430,7 @@ export class MySqlService {
                const res = await this.exec('sp_insert_pending_checkout', [data.userId, item.itemId, item.qty, item.totalAmt])
 
                // check if other user are faster to insert
-               if (res) {
+               if (res?.outOfStock) {
                     outOfStockItems.push({
                          itemId: item.itemId,
                          name: item.name,
@@ -434,6 +438,8 @@ export class MySqlService {
                          stockRemain: item.stockRemain,
                     })
                }
+
+               shippingFee.push(res)
           }
 
           // delete pending checkout and return if item are out of stock
@@ -443,7 +449,7 @@ export class MySqlService {
                return { status: false, msg: 'Some items are out of stock', items: outOfStockItems }
           }
 
-          return { status: true, msg: 'Pending payment', items: checkoutPendingItems }
+          return { status: true, msg: 'Pending payment', items: checkoutPendingItems, fee: shippingFee }
      }
 
      public static async deleteCheckoutList(data?: CheckoutPendingType, decodedJwt?: any) {

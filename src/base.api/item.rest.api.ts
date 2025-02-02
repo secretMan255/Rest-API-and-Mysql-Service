@@ -16,7 +16,8 @@ import {
      GetCartRequest,
      CartItemRequest,
      GetMainProductRequest,
-     CheckoutPendingRequest,
+     checkoutPendingRequest,
+     checkoutDeleteRequest,
 } from '../JoiValidator/JoiValidator'
 import { getFile, CartRequestType } from '../commond/commond'
 import { ResultType } from './index'
@@ -118,7 +119,12 @@ export async function OnRemoveItemCart(req: Request, res: Response): Promise<any
      return await JoinValidator(req.body, async (data) => MySqlService.removeCartItem(data, decodedJwt), CartItemRequest)
 }
 
-export async function OnCheckOutPending(req: Request, res: Response): Promise<any> {
+export async function OncheckoutPending(req: Request, res: Response): Promise<any> {
      const decodedJwt = jwt.verify(req.cookies?.authToken, process.env.SECRET_KEY) as JwtPayload
-     return await JoinValidator(req.body, async (data) => MySqlService.checkOutPending(data, decodedJwt), CheckoutPendingRequest)
+     return await JoinValidator(req.body, async (data) => MySqlService.checkoutPending(data, decodedJwt), checkoutPendingRequest)
+}
+
+export async function OnCheckoutDelete(req: Request, res: Response): Promise<any> {
+     const decodedJwt = jwt.verify(req.cookies?.authToken, process.env.SECRET_KEY) as JwtPayload
+     return await JoinValidator(req.body, async (data) => MySqlService.deleteCheckoutList(data, decodedJwt), checkoutDeleteRequest)
 }

@@ -152,3 +152,16 @@ CREATE TABLE `pnk`.`checkout_pending` (
   INDEX `idx_user_id` (`userId` ASC) VISIBLE,
   INDEX `idx_item_id` (`itemId` ASC) VISIBLE);
 
+ALTER TABLE `pnk`.`state` 
+ADD COLUMN `shipping_fee` DECIMAL(8,2) NOT NULL DEFAULT 0 AFTER `name`;
+
+ALTER TABLE `pnk`.`items` 
+ADD COLUMN `shipping_fee` DECIMAL(7,2) NOT NULL DEFAULT 0 AFTER `p_id`;
+
+ALTER TABLE `pnk`.`items` 
+CHANGE COLUMN `shipping_fee` `shipping_fee` DECIMAL(3,2) NOT NULL DEFAULT '0' ;
+
+ALTER TABLE `pnk`.`state` 
+CHANGE COLUMN `shipping_fee` `shipping_fee` DECIMAL(3,2) NOT NULL DEFAULT '0' ;
+
+
