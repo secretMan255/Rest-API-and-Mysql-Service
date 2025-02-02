@@ -640,3 +640,19 @@ Main: BEGIN
     COMMIT;
 END Main $$
 DELIMITER ;
+
+DELIMITER ;
+CREATE PROCEDURE `sp_get_user_infor`(
+	IN p_user_id INT
+)
+    SQL SECURITY INVOKER
+Main: BEGIN
+	IF (p_user_id IS NULL OR p_user_id = '') THEN
+		SELECT phone, address, city, postCode, country FROM userCre;
+    ELSE 
+		SELECT phone, address, city, postCode, country
+        FROM userCre 
+        WHERE id = p_user_id;
+    END IF;
+END Main $$
+DELIMITER ;
