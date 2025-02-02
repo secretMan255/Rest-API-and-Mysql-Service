@@ -392,6 +392,16 @@ export class MySqlService {
                return { errorMsg: 'Please checkout later' }
           }
 
+          const checkUserInfo = await this.exec('sp_get_user_infor', [data.userId])
+
+          const nullFields = Object.entries(checkUserInfo)
+               .filter(([key, value]) => value === null)
+               .map(([key]) => key)
+
+          if (nullFields) {
+               return { status: false, nullFields: nullFields }
+          }
+
           const items = await this.exec('sp_get_cart', [data.userId])
           const checkoutPendingItems: PendingCheckout[] = []
           const outOfStockItems = []
