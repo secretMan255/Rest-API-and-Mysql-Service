@@ -164,4 +164,11 @@ CHANGE COLUMN `shipping_fee` `shipping_fee` DECIMAL(3,2) NOT NULL DEFAULT '0' ;
 ALTER TABLE `pnk`.`state` 
 CHANGE COLUMN `shipping_fee` `shipping_fee` DECIMAL(3,2) NOT NULL DEFAULT '0' ;
 
+ALTER TABLE `pnk`.`items` 
+ADD COLUMN `img` VARCHAR(45) NULL AFTER `qty`;
+
+ALTER TABLE `pnk`.`products` 
+ADD COLUMN `describe` VARCHAR(350) NULL AFTER `icon`,
+ADD COLUMN `createAt` DATETIME NULL AFTER `status`;
+
 
