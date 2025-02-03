@@ -1,15 +1,15 @@
 DELIMITER $$
-CREATE PPROCEDURE `sp_get_product_list`(
+CREATE PROCEDURE `sp_get_product_list`(
 	IN p_status INT
 )
 BEGIN
 	IF p_status = 0 THEN
-		SELECT id, name, p_id, icon, status
-		FROM pnk.products;
+		SELECT PRO.id, PRO.name, PRO.p_id, PRO.icon, PRO.describe, PRO.status
+		FROM pnk.products PRO;
 	ELSEIF p_status = 1 THEN
-		SELECT id, name, p_id, icon, status
-		FROM pnk.products
-		WHERE status = 1;
+		SELECT PRO.id, PRO.name, PRO.p_id, PRO.icon, PRO.describe, PRO.status
+		FROM pnk.products PRO
+		WHERE PRO.status = 1;
 	END IF;
 END $$    
 DELIMITER ;
@@ -18,7 +18,7 @@ DELIMITER $$
 CREATE PROCEDURE `sp_get_item`(
 )
 BEGIN
-	SELECT IT.id, IT.name, IT.price, IT.describe, IT.p_id, IT.qty
+	SELECT IT.id, IT.name, IT.price, IT.describe, IT.img, IT.p_id, IT.qty
     FROM items IT
     INNER JOIN products PD ON IT.p_id = PD.id
     WHERE PD.status = 1 AND IT.status = 1;
