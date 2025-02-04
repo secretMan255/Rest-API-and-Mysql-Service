@@ -1,3 +1,4 @@
+DROP PROCEDURE IF EXISTS `sp_get_product_list`;
 DELIMITER $$
 CREATE PROCEDURE `sp_get_product_list`(
 	IN p_status INT
@@ -14,8 +15,9 @@ BEGIN
 END $$    
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_get_item`;
 DELIMITER $$
-CREATE PROCEDURE `sp_get_item`(
+PROCEDURE `sp_get_item`(
 )
 BEGIN
 	SELECT IT.id, IT.name, IT.price, IT.describe, IT.img, IT.p_id, IT.qty
@@ -25,6 +27,7 @@ BEGIN
 END $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_err`;
 DELIMITER $$
 CREATE PROCEDURE `sp_err`(
     IN p_err_code VARCHAR(5),
@@ -46,6 +49,7 @@ BEGIN
 END $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_insert_subscribe`;
 DELIMITER $$
 CREATE PROCEDURE `sp_insert_subscribe`(
 	IN p_email VARCHAR(100)
@@ -61,6 +65,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_user_login`;
 DELIMITER $$
 CREATE PROCEDURE `sp_user_login`(
 	IN p_sub VARCHAR(255),
@@ -99,6 +104,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_check_user_exists`;
 DELIMITER $$
 CREATE PROCEDURE `sp_check_user_exists`(
 	IN p_email VARCHAR(50),
@@ -122,6 +128,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_update_user_last_login`;
 DELIMITER $$
 CREATE PROCEDURE `sp_update_user_last_login`(
 	IN p_id INT
@@ -138,6 +145,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_update_password`;
 DELIMITER $$
 CREATE PROCEDURE `sp_update_password`(
 	IN p_email VARCHAR(50),
@@ -176,6 +184,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_save_email_otp`;
 DELIMITER $$
 CREATE PROCEDURE `sp_save_email_otp`(
 	IN p_email VARCHAR(45),
@@ -202,6 +211,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_get_state`;
 DELIMITER $$
 CREATE PROCEDURE `sp_get_state`(
 	IN p_status INT
@@ -216,6 +226,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_create_account`;
 DELIMITER $$
 CREATE PROCEDURE `sp_create_account`(
 	IN p_email VARCHAR(45),
@@ -291,6 +302,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_user_login`;
 DELIMITER $$
 CREATE PROCEDURE `sp_user_login`(
 	IN p_sub VARCHAR(255),
@@ -345,6 +357,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ; 
 
+DROP PROCEDURE IF EXISTS `sp_add_item_cart_qty`;
 DELIMITER $$
 CREATE PROCEDURE `sp_add_item_cart_qty`(
     IN p_user_id INT,
@@ -423,6 +436,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_minus_item_cart_qty`;
 DELIMITER $$
 CREATE PROCEDURE `sp_minus_item_cart_qty`(
 	IN p_user_id INT,
@@ -478,6 +492,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_get_cart`;
 DELIMITER $$
 CREATE PROCEDURE `sp_get_cart`(
 	IN p_user_id INT
@@ -497,6 +512,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_remove_item_cart`;
 DELIMITER $$
 CREATE PROCEDURE `sp_remove_item_cart`(
 	IN p_user_id INT,
@@ -534,6 +550,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_get_main_product`;
 DELIMITER $$
 CREATE PROCEDURE `sp_get_main_product`()
 BEGIN
@@ -544,6 +561,7 @@ BEGIN
 END $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_insert_pending_checkout`;
 DELIMITER $$
 CREATE PROCEDURE `sp_insert_pending_checkout`(
 	IN p_user_id INT,
@@ -600,6 +618,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_delete_pending_checkout`;
 DELIMITER ;
 CREATE PROCEDURE `sp_delete_pending_checkout`(
 	IN p_user_id INT
@@ -641,6 +660,7 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
+DROP PROCEDURE IF EXISTS `sp_get_user_infor`;
 DELIMITER ;
 CREATE PROCEDURE `sp_get_user_infor`(
 	IN p_user_id INT
@@ -653,6 +673,24 @@ Main: BEGIN
 		SELECT phone, address, city, postCode, country
         FROM userCre 
         WHERE id = p_user_id;
+    END IF;
+END Main $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS `sp_get_product_img`
+DELIMITER ;
+CREATE PROCEDURE `sp_get_product_img`(
+	IN p_parent_id INT
+)
+    SQL SECURITY INVOKER
+Main: BEGIN
+    IF p_parent_id = '' OR p_parent_id IS NULL THEN
+		SELECT p_id AS id, name AS image
+        FROM pnk.image;
+    ELSE 
+		SELECT name AS image
+        FROM p_id AS id, pnk.image
+        WHERE p_id = p_parent_id;
     END IF;
 END Main $$
 DELIMITER ;
