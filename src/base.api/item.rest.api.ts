@@ -2,7 +2,6 @@ import { Request, Response } from 'express'
 import { MySqlService } from '../mySql/index'
 import {
      JoinValidator,
-     GetImageRequest,
      GetItemListRequest,
      GetProductListRequest,
      SubscribeResquest,
@@ -18,6 +17,7 @@ import {
      GetMainProductRequest,
      checkoutPendingRequest,
      checkoutDeleteRequest,
+     GetImageReqeust,
 } from '../JoiValidator/JoiValidator'
 import { getFile, CartRequestType } from '../commond/commond'
 import { ResultType } from './index'
@@ -42,8 +42,12 @@ export async function OnGetItemList(req: Request, res: Response): Promise<any> {
      return await JoinValidator(req.query, async (data) => MySqlService.getItemList(), GetItemListRequest)
 }
 
+// export async function OnGetImage(req: Request, res: Response): Promise<any> {
+//      return { type: ResultType.IMAGE, image: await JoinValidator(req.query, async (data) => getFile(data), GetImageRequest) }
+// }
+
 export async function OnGetImage(req: Request, res: Response): Promise<any> {
-     return { type: ResultType.IMAGE, image: await JoinValidator(req.query, async (data) => getFile(data), GetImageRequest) }
+     return await JoinValidator(req.query, async (data) => MySqlService.getImage(data.id), GetImageReqeust)
 }
 
 export async function OnSubscribe(req: Request, res: Response): Promise<any> {

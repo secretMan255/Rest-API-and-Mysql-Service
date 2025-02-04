@@ -70,6 +70,7 @@ export class service {
           ApiBase.get('/products', OnGetProductList, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
           ApiBase.get('/items', OnGetItemList, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
           ApiBase.get('/image', OnGetImage, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
+          // ApiBase.get('/image', OnGetImage, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
           ApiBase.get('/file/name', OnGetFileName, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
           ApiBase.get('/subscribe', OnSubscribe, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)
           ApiBase.get('/state', OnGetState, [ROLE.ADMIN, ROLE.CUSTOMER], Auth.Bearer)

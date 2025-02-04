@@ -162,6 +162,10 @@ export class MySqlService {
           return await this.exec('sp_get_item')
      }
 
+     public static async getImage(p_id: number) {
+          return await this.exec('sp_get_product_img', [p_id])
+     }
+
      public static async subscribe(data: Subscribe) {
           await this.exec('sp_insert_subscribe', [data.email])
 

@@ -18,9 +18,13 @@ export const GetMainProductRequest = Joi.object({})
 
 export const GetItemListRequest = Joi.object({})
 
-export const GetImageRequest = Joi.object({
-     path: Joi.string().required(),
-     fileName: Joi.string().required(),
+// export const GetImageRequest = Joi.object({
+//      path: Joi.string().required(),
+//      fileName: Joi.string().required(),
+// })
+
+export const GetImageReqeust = Joi.object({
+     id: Joi.number(),
 })
 
 export const UploadImageRequest = Joi.object({
