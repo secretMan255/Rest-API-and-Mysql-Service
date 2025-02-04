@@ -171,4 +171,15 @@ ALTER TABLE `pnk`.`products`
 ADD COLUMN `describe` VARCHAR(350) NULL AFTER `icon`,
 ADD COLUMN `createAt` DATETIME NULL AFTER `status`;
 
+CREATE TABLE `pnk`.`image` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(50) NULL,
+  `p_id` INT NOT NULL,
+  `status` INT NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  INDEX `idx_p_id` (`p_id` ASC) VISIBLE);
+
+ALTER TABLE `pnk`.`products` 
+CHANGE COLUMN `describe` `describe` VARCHAR(500) NULL DEFAULT NULL ;
+
 
