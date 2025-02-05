@@ -1,3 +1,5 @@
+CREATE DATABASE pnk;
+
 CREATE TABLE `pnk`.`products` (
   `id` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,

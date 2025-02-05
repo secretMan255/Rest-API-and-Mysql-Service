@@ -1,6 +1,7 @@
-DROP PROCEDURE IF EXISTS `sp_get_product_list`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_get_product_list`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_get_product_list` $$
+CREATE PROCEDURE `pnk`.`sp_get_product_list`(
 	IN p_status INT
 )
 BEGIN
@@ -15,9 +16,10 @@ BEGIN
 END $$    
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_get_item`;
+
 DELIMITER $$
-PROCEDURE `sp_get_item`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_get_item` $$
+CREATE PROCEDURE `pnk`.`sp_get_item`(
 )
 BEGIN
 	SELECT IT.id, IT.name, IT.price, IT.describe, IT.img, IT.p_id, IT.qty
@@ -27,9 +29,10 @@ BEGIN
 END $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_err`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_err`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_err` $$
+CREATE PROCEDURE `pnk`.`sp_err`(
     IN p_err_code VARCHAR(5),
     IN p_err_msg VARCHAR(255)
 )
@@ -49,9 +52,10 @@ BEGIN
 END $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_insert_subscribe`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_insert_subscribe`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_insert_subscribe` $$
+CREATE PROCEDURE `pnk`.`sp_insert_subscribe`(
 	IN p_email VARCHAR(100)
 )
 Main: BEGIN
@@ -65,9 +69,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_user_login`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_user_login`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_user_login` $$
+CREATE PROCEDURE `pnk`.`sp_user_login`(
 	IN p_sub VARCHAR(255),
     IN p_name VARCHAR(45),
     IN p_email VARCHAR(45),
@@ -104,9 +109,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_check_user_exists`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_check_user_exists`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_check_user_exists` $$
+CREATE PROCEDURE `pnk`.`sp_check_user_exists`(
 	IN p_email VARCHAR(50),
     IN p_otp VARCHAR(6)
 )
@@ -128,9 +134,9 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_update_user_last_login`;
 DELIMITER $$
-CREATE PROCEDURE `sp_update_user_last_login`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_update_user_last_login` $$
+CREATE PROCEDURE `pnk`.`sp_update_user_last_login`(
 	IN p_id INT
 )
 Main: BEGIN
@@ -145,9 +151,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_update_password`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_update_password`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_update_password` $$
+CREATE PROCEDURE `pnk`.`sp_update_password`(
 	IN p_email VARCHAR(50),
     IN p_password VARCHAR(255),
     IN p_otp INT(6)
@@ -184,9 +191,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_save_email_otp`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_save_email_otp`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_save_email_otp` $$
+CREATE PROCEDURE `pnk`.`sp_save_email_otp`(
 	IN p_email VARCHAR(45),
     IN p_otp VARCHAR(6)
 )
@@ -211,9 +219,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_get_state`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_get_state`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_get_state` $$
+CREATE PROCEDURE `pnk`.`sp_get_state`(
 	IN p_status INT
 )
 Main: BEGIN
@@ -226,9 +235,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_create_account`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_create_account`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_create_account` $$
+CREATE PROCEDURE `pnk`.`sp_create_account`(
 	IN p_email VARCHAR(45),
     IN p_name VARCHAR(45),
     IN p_password VARCHAR(255),
@@ -302,9 +312,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_user_login`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_user_login`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_user_login` $$
+CREATE PROCEDURE `pnk`.`sp_user_login`(
 	IN p_sub VARCHAR(255),
     IN p_name VARCHAR(45),
     IN p_email VARCHAR(45),
@@ -357,9 +368,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ; 
 
-DROP PROCEDURE IF EXISTS `sp_add_item_cart_qty`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_add_item_cart_qty`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_add_item_cart_qty` $$
+CREATE PROCEDURE `pnk`.`sp_add_item_cart_qty`(
     IN p_user_id INT,
     IN p_item_id INT
 )
@@ -436,9 +448,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_minus_item_cart_qty`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_minus_item_cart_qty`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_minus_item_cart_qty` $$
+CREATE PROCEDURE `pnk`.`sp_minus_item_cart_qty`(
 	IN p_user_id INT,
     IN p_item_id INT
 )
@@ -492,9 +505,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_get_cart`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_get_cart`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_get_cart` $$
+CREATE PROCEDURE `pnk`.`sp_get_cart`(
 	IN p_user_id INT
 )
 Main: BEGIN
@@ -512,9 +526,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_remove_item_cart`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_remove_item_cart`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_remove_item_cart` $$
+CREATE PROCEDURE `pnk`.`sp_remove_item_cart`(
 	IN p_user_id INT,
     IN p_item_id INT
 )
@@ -550,9 +565,9 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_get_main_product`;
+DROP PROCEDURE IF EXISTS `pnk`.`sp_get_main_product`;
 DELIMITER $$
-CREATE PROCEDURE `sp_get_main_product`()
+CREATE PROCEDURE `pnk`.`sp_get_main_product`()
 BEGIN
 	SELECT MA.name
     FROM pnk.main_product MA
@@ -561,9 +576,10 @@ BEGIN
 END $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_insert_pending_checkout`;
+
 DELIMITER $$
-CREATE PROCEDURE `sp_insert_pending_checkout`(
+DROP PROCEDURE IF EXISTS `pnk`.`sp_insert_pending_checkout` $$
+CREATE PROCEDURE `pnk`.`sp_insert_pending_checkout`(
 	IN p_user_id INT,
     IN p_item_id INT,
     IN p_qty INT,
@@ -618,9 +634,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_delete_pending_checkout`;
-DELIMITER ;
-CREATE PROCEDURE `sp_delete_pending_checkout`(
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `pnk`.`sp_delete_pending_checkout` $$
+CREATE PROCEDURE `pnk`.`sp_delete_pending_checkout`(
 	IN p_user_id INT
 )
     SQL SECURITY INVOKER
@@ -660,9 +677,10 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_get_user_infor`;
-DELIMITER ;
-CREATE PROCEDURE `sp_get_user_infor`(
+
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `pnk`.`sp_get_user_infor` $$
+CREATE PROCEDURE `pnk`.`sp_get_user_infor`(
 	IN p_user_id INT
 )
     SQL SECURITY INVOKER
@@ -677,9 +695,9 @@ Main: BEGIN
 END Main $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS `sp_get_product_img`
-DELIMITER ;
-CREATE PROCEDURE `sp_get_product_img`(
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `pnk`.`sp_get_product_img` $$
+CREATE PROCEDURE `pnk`.`sp_get_product_img`(
 	IN p_parent_id INT
 )
     SQL SECURITY INVOKER
