@@ -32,13 +32,35 @@ export class ApiBase {
                this.app.use(express.json())
                this.app.use(this.errorHandler)
                this.app.use(cookieParser())
-               this.app.use(cors({ origin: 'http://localhost:3000', credentials: true, allowedHeaders: ['Content-Type', 'Authorization'], methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'] }))
+               this.app.use(
+                    cors({
+                         origin: true, // ['http://localhost:3000', 'http://192.168.0.9:3000'],
+                         credentials: true,
+                         allowedHeaders: ['Content-Type', 'Authorization'],
+                         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+                    })
+               )
+               // this.app.use(
+               //      cors({
+               //           origin: (origin, callback) => {
+               //                const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : []
+               //                if (!origin || allowedOrigins.includes(origin)) {
+               //                     callback(null, true)
+               //                } else {
+               //                     callback(new Error('Not allowed by CORS'))
+               //                }
+               //           },
+               //           credentials: true,
+               //           allowedHeaders: ['Content-Type', 'Authorization'],
+               //           methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+               //      })
+               // )
           }
 
           dotenv.config()
           this.secretKey = process.env.SECRET_KEY || 'defaultSecretKey'
           const resolveHost = host || '0.0.0.0'
-          const resolvePort = port || 8000
+          const resolvePort = Number(process.env.PORT) || 8080
 
           this.server = this.app.listen(resolvePort, resolveHost, () => {
                console.log(`Server is running at http://${resolveHost}:${resolvePort}`)
