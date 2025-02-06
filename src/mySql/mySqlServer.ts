@@ -112,7 +112,17 @@ export class MySqlService {
 
           try {
                // Create a connection instance
-               this.Instance = await mysql.createConnection({ uri: this.MysqlURL, multipleStatements: true })
+
+               // connection to google cloud sql -> mysql.createPool
+               this.Instance = await mysql.createPool({
+                    user: process.env.DB_USER,
+                    password: process.env.DB_PASS,
+                    database: process.env.DB_NAME,
+                    socketPath: `/cloudsql/${process.env.INSTANCE_CONNECTION_NAME}`,
+               })
+
+               // connection to mysql -> mysql.createConnection
+               // this.Instance = await mysql.createConnection({ uri: this.MysqlURL, multipleStatements: true })
                console.log('Connected to MySQL database!')
           } catch (err) {
                console.error('Error connecting to MySQL:', err)
