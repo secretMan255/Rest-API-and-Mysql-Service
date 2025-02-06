@@ -1,17 +1,24 @@
 version: '3.8'
 
 services:
-  api-mysql-server: 
+  api-mysql-service: 
     image: 
-    container_name: api_server
+    container_name: api-mysql-service
     ports:
       - "8000:8000"
     environment:
+      - NODE_ENV=
       - SECRET_KEY=
-      - DATABASE_URL=
-      - host=
-      - username=
-      - password=
-      - databse=
-      - port=
+      - ALLOWED_ORIGINS=
+      - EXPIRES_IN=
+      - DB_USER=
+      - DB_PASS=
+      - DB_NAME=
+      - INSTANCE_CONNECTION_NAME=
+      - emailService=
+      - emailHost=
+      - emailPort=
+      - emailUser=
+      - emailPass=
+      - cronTime=
     restart: always
