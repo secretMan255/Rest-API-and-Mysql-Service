@@ -569,9 +569,9 @@ DROP PROCEDURE IF EXISTS `pnk`.`sp_get_main_product`;
 DELIMITER $$
 CREATE PROCEDURE `pnk`.`sp_get_main_product`()
 BEGIN
-	SELECT MA.name
+	SELECT PDT.name
     FROM pnk.main_product MA
-    INNER JOIN pnk.products PDT ON MA.name = PDT.name
+    INNER JOIN pnk.products PDT ON MA.p_id = PDT.id
     WHERE MA.status = 1 AND PDT.status = 1;
 END $$
 DELIMITER ;
