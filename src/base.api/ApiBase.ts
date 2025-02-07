@@ -34,7 +34,7 @@ export class ApiBase {
                this.app.use(cookieParser())
                this.app.use(
                     cors({
-                         origin: true, // ['http://localhost:3000', 'http://192.168.0.9:3000'],
+                         origin: process.env.ALLOWED_ORIGINS, // ['http://localhost:3000', 'http://192.168.0.9:3000'],
                          credentials: true,
                          allowedHeaders: ['Content-Type', 'Authorization'],
                          methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
