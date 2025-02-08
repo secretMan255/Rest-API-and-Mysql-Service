@@ -60,7 +60,7 @@ export class ApiBase {
           dotenv.config()
           this.secretKey = process.env.SECRET_KEY || 'defaultSecretKey'
           const resolveHost = host || '0.0.0.0'
-          const resolvePort = Number(process.env.PORT) || 8080
+          const resolvePort = Number(process.env.PORT) || port || 8080
 
           this.server = this.app.listen(resolvePort, resolveHost, () => {
                console.log(`Server is running at http://${resolveHost}:${resolvePort}`)
