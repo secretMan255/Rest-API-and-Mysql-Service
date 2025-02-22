@@ -1,3 +1,4 @@
+USE `pnk`;
 
 DELIMITER $$
 DROP PROCEDURE IF EXISTS `pnk`.`sp_get_product_list` $$
