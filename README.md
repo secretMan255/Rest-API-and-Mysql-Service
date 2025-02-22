@@ -1,6 +1,6 @@
 # Introduce
 
-This is a express rest api backend service that connect with mysql database
+This is a express rest api backend service that connect with mysql database [frontend](https://github.com/secretMan255/Hardware-portal)
 
 # Setup Instructions
 
